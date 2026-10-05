@@ -1,14 +1,18 @@
 /**
  * Gráficos do sistema (Chart.js), usados como componentes Alpine.js:
  *
- *   <canvas x-data="graficoComposicao(dados)"></canvas>
- *   <canvas x-data="graficoCustoPorHectare(dados)"></canvas>
+ *   <canvas x-data="graficoComposicao(dados)"></canvas>        barra única: insumos × maquinário × mão de obra
+ *   <canvas x-data="graficoBarras(dados)"></canvas>            barras horizontais de uma série (ordenadas)
+ *   <canvas x-data="graficoCustoPorHectare(dados)"></canvas>   igual a graficoBarras, com "por hectare" no tooltip
+ *   <canvas x-data="graficoBarrasEmpilhadas(dados)"></canvas>  barras empilhadas pelos três grupos de custo
  *
- * Os dados chegam prontos do servidor: { rotulos: [...], valores: [...] }.
+ * Os dados chegam prontos do servidor (GraficosCustoService):
+ *   { rotulos: [...], valores: [...] }                         séries simples
+ *   { rotulos: [...], series: [{ rotulo, valores }], orientacao: 'horizontal' | 'vertical' }
  */
-import { BarController, BarElement, CategoryScale, Chart, LinearScale, Tooltip } from 'chart.js';
+import { BarController, BarElement, CategoryScale, Chart, Legend, LinearScale, Tooltip } from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 const moedaCompacta = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' });
@@ -37,8 +41,8 @@ const rotulosNasBarras = {
 };
 
 /**
- * Cores por tema. As três cores das séries foram validadas para daltonismo
- * contra a superfície dos cards (branca no tema claro, #3c3c3c no escuro).
+ * Cores por tema. As três cores das séries (insumos, maquinário, mão de obra)
+ * foram validadas para daltonismo contra a superfície dos cards.
  */
 function cores() {
     const escuro = document.documentElement.classList.contains('dark');
@@ -58,8 +62,7 @@ function opcoesDeEixo(paleta) {
 
 /**
  * Composição do custo (Insumos × Maquinário × Mão de obra) em uma única
- * barra horizontal empilhada. Cada parte mostra valor e percentual no tooltip;
- * a legenda com os valores fica no HTML, ao lado do gráfico.
+ * barra horizontal empilhada. A legenda com os valores fica no HTML.
  */
 function criarGraficoComposicao(canvas, dados) {
     const paleta = cores();
@@ -114,10 +117,11 @@ function criarGraficoComposicao(canvas, dados) {
 }
 
 /**
- * Custo por hectare de cada talhão, em barras horizontais (uma cor só,
- * pois há uma única série). Ordenado do maior para o menor custo.
+ * Barras horizontais de uma única série (uma cor só), ordenadas do maior
+ * para o menor, com o valor escrito na ponta de cada barra.
+ * Opcional: dados.sufixo, texto exibido após o valor no tooltip (ex.: "por hectare").
  */
-function criarGraficoCustoPorHectare(canvas, dados) {
+function criarGraficoBarrasHorizontais(canvas, dados) {
     const paleta = cores();
     const pares = dados.rotulos
         .map((rotulo, indice) => ({ rotulo, valor: dados.valores[indice] }))
@@ -130,7 +134,7 @@ function criarGraficoCustoPorHectare(canvas, dados) {
             labels: pares.map((par) => par.rotulo),
             datasets: [
                 {
-                    label: 'Custo por hectare',
+                    label: dados.sufixo ?? 'Custo',
                     data: pares.map((par) => par.valor),
                     backgroundColor: paleta.series[0],
                     borderRadius: 4,
@@ -158,7 +162,7 @@ function criarGraficoCustoPorHectare(canvas, dados) {
                 rotulosNasBarras: { cor: paleta.texto },
                 tooltip: {
                     callbacks: {
-                        label: (contexto) => `${moeda.format(contexto.parsed.x)} por hectare`,
+                        label: (contexto) => `${moeda.format(contexto.parsed.x)}${dados.sufixo ? ` ${dados.sufixo}` : ''}`,
                     },
                 },
             },
@@ -167,31 +171,83 @@ function criarGraficoCustoPorHectare(canvas, dados) {
 }
 
 /**
- * Componentes Alpine. A instância do gráfico fica fora do estado reativo
- * do Alpine (variável local), como recomenda a documentação do Chart.js.
+ * Barras empilhadas pelos três grupos de custo (insumos, maquinário e mão de obra).
+ * dados.orientacao: 'horizontal' (padrão, ex.: custo por talhão) ou 'vertical' (ex.: evolução mensal).
+ * Um espaço de 2px na cor do card separa os segmentos; o tooltip mostra os três valores e o total.
  */
-window.graficoComposicao = (dados) => {
-    let grafico = null;
+function criarGraficoBarrasEmpilhadas(canvas, dados) {
+    const paleta = cores();
+    const horizontal = dados.orientacao !== 'vertical';
+    const eixoDoValor = horizontal ? 'x' : 'y';
+    const eixoDaCategoria = horizontal ? 'y' : 'x';
+    const valorDoItem = (item) => (horizontal ? item.parsed.x : item.parsed.y);
 
-    return {
-        init() {
-            grafico = criarGraficoComposicao(this.$el, dados);
+    return new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: dados.rotulos,
+            datasets: dados.series.map((serie, indice) => ({
+                label: serie.rotulo,
+                data: serie.valores,
+                backgroundColor: paleta.series[indice],
+                borderColor: paleta.superficie,
+                borderWidth: indice === 0 ? 0 : horizontal ? { left: 2 } : { bottom: 2 },
+                borderSkipped: false,
+                maxBarThickness: horizontal ? 22 : 40,
+            })),
         },
-        destroy() {
-            grafico?.destroy();
+        options: {
+            indexAxis: horizontal ? 'y' : 'x',
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                [eixoDoValor]: {
+                    ...opcoesDeEixo(paleta),
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: { color: paleta.texto, maxTicksLimit: 6, callback: (valor) => moedaCompacta.format(valor) },
+                },
+                [eixoDaCategoria]: { ...opcoesDeEixo(paleta), stacked: true, grid: { display: false } },
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: paleta.texto, usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 10, boxHeight: 10, padding: 16 },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (item) => `${item.dataset.label}: ${moeda.format(valorDoItem(item))}`,
+                        footer: (itens) => `Total: ${moeda.format(itens.reduce((soma, item) => soma + valorDoItem(item), 0))}`,
+                    },
+                },
+            },
         },
+    });
+}
+
+/**
+ * Transforma uma função de criação de gráfico em um componente Alpine.
+ * A instância do gráfico fica fora do estado reativo do Alpine (variável local),
+ * como recomenda a documentação do Chart.js.
+ */
+function componenteDeGrafico(criar) {
+    return (dados) => {
+        let grafico = null;
+
+        return {
+            init() {
+                grafico = criar(this.$el, dados);
+            },
+            destroy() {
+                grafico?.destroy();
+            },
+        };
     };
-};
+}
 
-window.graficoCustoPorHectare = (dados) => {
-    let grafico = null;
-
-    return {
-        init() {
-            grafico = criarGraficoCustoPorHectare(this.$el, dados);
-        },
-        destroy() {
-            grafico?.destroy();
-        },
-    };
-};
+window.graficoComposicao = componenteDeGrafico(criarGraficoComposicao);
+window.graficoBarras = componenteDeGrafico(criarGraficoBarrasHorizontais);
+window.graficoCustoPorHectare = componenteDeGrafico((canvas, dados) => criarGraficoBarrasHorizontais(canvas, { sufixo: 'por hectare', ...dados }));
+window.graficoBarrasEmpilhadas = componenteDeGrafico(criarGraficoBarrasEmpilhadas);

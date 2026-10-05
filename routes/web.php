@@ -10,6 +10,7 @@ use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\MaquinaController;
 use App\Http\Controllers\PropriedadeController;
 use App\Http\Controllers\RelatorioController;
+use App\Http\Controllers\RelatorioPdfController;
 use App\Http\Controllers\TalhaoController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Análises
     Route::get('custos-por-talhao', CustoTalhaoController::class)->name('custos-talhoes.index');
     Route::get('relatorios', RelatorioController::class)->name('relatorios.index');
+    Route::get('relatorios/pdf', RelatorioPdfController::class)->name('relatorios.pdf');
 });
 
 require __DIR__.'/settings.php';

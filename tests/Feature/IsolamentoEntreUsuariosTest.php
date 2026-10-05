@@ -61,7 +61,9 @@ test('não permite excluir registros de outro usuário', function () {
 test('as listagens mostram apenas os registros do próprio usuário', function () {
     $meusDados = criarPropriedadeComRecursos($this->outroUsuario);
     $meusDados['talhao']->update(['nome' => 'Meu talhão']);
+    $meusDados['propriedade']->update(['nome' => 'Minha fazenda']);
     $this->dono['talhao']->update(['nome' => 'Talhão do vizinho']);
+    $this->dono['propriedade']->update(['nome' => 'Fazenda do vizinho']);
 
     $this->get(route('talhoes.index'))
         ->assertOk()
@@ -70,8 +72,8 @@ test('as listagens mostram apenas os registros do próprio usuário', function (
 
     $this->get(route('propriedades.index'))
         ->assertOk()
-        ->assertSee($meusDados['propriedade']->nome)
-        ->assertDontSee($this->dono['propriedade']->nome);
+        ->assertSee('Minha fazenda')
+        ->assertDontSee('Fazenda do vizinho');
 });
 
 test('não permite cadastrar talhão em propriedade de outro usuário', function () {

@@ -61,7 +61,7 @@ function something()
 | Cenário padrão dos testes de custos
 |--------------------------------------------------------------------------
 |
-| Um usuário com uma propriedade de 50 ha, um talhão de 12,5 ha (safra
+| Um usuário com uma propriedade de 50 ha, um talhão de soja de 12,5 ha (safra
 | 2025/2026) e recursos com valores conhecidos:
 |   Ureia R$ 3,20/kg · Calcário R$ 150,00/t · Trator R$ 180,00/h
 |   Operador R$ 28,50/h · Grade (implemento, sem custo)
@@ -88,7 +88,7 @@ function criarPropriedadeComRecursos(?User $usuario = null): array
     return [
         'usuario' => $usuario,
         'propriedade' => $propriedade,
-        'talhao' => Talhao::factory()->for($propriedade)->create(['nome' => 'Talhão 01', 'area' => 12.5, 'safra' => '2025/2026']),
+        'talhao' => Talhao::factory()->for($propriedade)->create(['nome' => 'Talhão 01', 'area' => 12.5, 'cultura' => 'Soja', 'safra' => '2025/2026']),
         'ureia' => Insumo::factory()->for($propriedade)->create(['nome' => 'Ureia', 'valor_unitario' => 3.20]),
         'calcario' => Insumo::factory()->for($propriedade)->create(['nome' => 'Calcário', 'valor_unitario' => 150.00]),
         'trator' => Maquina::factory()->for($propriedade)->create(['nome' => 'Trator 01', 'custo_hora' => 180.00]),
