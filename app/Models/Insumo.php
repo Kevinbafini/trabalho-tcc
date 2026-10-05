@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\PertenceAPropriedade;
+use App\Concerns\Pesquisavel;
 use App\Enums\CategoriaInsumo;
 use App\Enums\StatusRecurso;
 use App\Enums\UnidadeMedida;
@@ -34,7 +35,7 @@ use Illuminate\Support\Carbon;
 class Insumo extends Model
 {
     /** @use HasFactory<InsumoFactory> */
-    use HasFactory, PertenceAPropriedade;
+    use HasFactory, PertenceAPropriedade, Pesquisavel;
 
     /**
      * Get the attributes that should be cast.
@@ -50,6 +51,16 @@ class Insumo extends Model
             'quantidade_estoque' => 'float',
             'status' => StatusRecurso::class,
         ];
+    }
+
+    /**
+     * Colunas usadas pela busca da listagem.
+     *
+     * @return list<string>
+     */
+    protected function camposDeBusca(): array
+    {
+        return ['nome'];
     }
 
     /**

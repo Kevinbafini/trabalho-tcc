@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\PertenceAPropriedade;
+use App\Concerns\Pesquisavel;
 use App\Enums\StatusEquipamento;
 use Database\Factories\ImplementoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -30,7 +31,7 @@ use Illuminate\Support\Carbon;
 class Implemento extends Model
 {
     /** @use HasFactory<ImplementoFactory> */
-    use HasFactory, PertenceAPropriedade;
+    use HasFactory, PertenceAPropriedade, Pesquisavel;
 
     /**
      * Get the attributes that should be cast.
@@ -42,6 +43,16 @@ class Implemento extends Model
         return [
             'status' => StatusEquipamento::class,
         ];
+    }
+
+    /**
+     * Colunas usadas pela busca da listagem.
+     *
+     * @return list<string>
+     */
+    protected function camposDeBusca(): array
+    {
+        return ['nome', 'tipo', 'modelo'];
     }
 
     /**

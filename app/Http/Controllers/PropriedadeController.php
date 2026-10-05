@@ -8,22 +8,30 @@ use App\Models\User;
 use App\Services\IndicadoresCustoService;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PropriedadeController extends Controller
 {
     /**
-     * Lista as propriedades do usuário.
+     * Lista as propriedades do usuário, com busca por nome, proprietário ou município.
      */
-    public function index(#[CurrentUser] User $usuario): View
+    public function index(Request $request, #[CurrentUser] User $usuario): View|string
     {
+        $busca = $request->string('busca')->trim()->toString();
+
         $propriedades = Propriedade::query()
             ->doUsuario($usuario)
+            ->buscar($busca)
             ->withCount('talhoes')
             ->orderBy('nome')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('propriedades.index', ['propriedades' => $propriedades]);
+        return $this->responderListagem($request, view('propriedades.index', [
+            'propriedades' => $propriedades,
+            'busca' => $busca,
+        ]));
     }
 
     /**

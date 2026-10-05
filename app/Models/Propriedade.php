@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Pesquisavel;
 use App\Enums\StatusTalhao;
 use Database\Factories\PropriedadeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -35,7 +36,7 @@ use Illuminate\Support\Facades\Auth;
 class Propriedade extends Model
 {
     /** @use HasFactory<PropriedadeFactory> */
-    use HasFactory;
+    use HasFactory, Pesquisavel;
 
     /**
      * Unidades federativas aceitas no cadastro.
@@ -57,6 +58,16 @@ class Propriedade extends Model
         return [
             'area_total' => 'float',
         ];
+    }
+
+    /**
+     * Colunas usadas pela busca da listagem.
+     *
+     * @return list<string>
+     */
+    protected function camposDeBusca(): array
+    {
+        return ['nome', 'proprietario', 'municipio'];
     }
 
     /**

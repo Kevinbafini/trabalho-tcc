@@ -1,5 +1,5 @@
 <x-layouts::app title="Dashboard">
-    <x-cabecalho-pagina titulo="Dashboard" descricao="Visão geral das atividades e dos custos das suas propriedades." />
+    <x-cabecalho-pagina titulo="Dashboard" icone="chart-pie" descricao="Visão geral das atividades e dos custos das suas propriedades." />
 
     @if ($propriedades->isEmpty())
         <x-estado-vazio icone="home-modern" titulo="Bem-vindo! Comece cadastrando sua propriedade" descricao="O fluxo do sistema é: propriedade → talhões → recursos (funcionários, máquinas, implementos e insumos) → atividades agrícolas. Os indicadores de custos aparecem aqui automaticamente.">

@@ -15,25 +15,28 @@ use Illuminate\View\View;
 class InsumoController extends Controller
 {
     /**
-     * Lista os insumos do usuário, com filtro opcional por propriedade.
+     * Lista os insumos do usuário, com busca e filtro opcional por propriedade.
      */
-    public function index(Request $request, #[CurrentUser] User $usuario): View
+    public function index(Request $request, #[CurrentUser] User $usuario): View|string
     {
         $filtroPropriedade = $request->integer('propriedade_id') ?: null;
+        $busca = $request->string('busca')->trim()->toString();
 
         $insumos = Insumo::query()
             ->doUsuario($usuario)
             ->with('propriedade')
             ->when($filtroPropriedade, fn (Builder $query, int $id) => $query->where('propriedade_id', $id))
+            ->buscar($busca)
             ->orderBy('nome')
             ->paginate(15)
             ->withQueryString();
 
-        return view('insumos.index', [
+        return $this->responderListagem($request, view('insumos.index', [
             'insumos' => $insumos,
             'propriedades' => $this->propriedadesDoUsuario($usuario),
             'filtroPropriedade' => $filtroPropriedade,
-        ]);
+            'busca' => $busca,
+        ]));
     }
 
     /**

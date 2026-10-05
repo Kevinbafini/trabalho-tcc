@@ -1,5 +1,5 @@
 <x-layouts::app title="Custos por talhão">
-    <x-cabecalho-pagina titulo="Custos por talhão" descricao="Custos acumulados das atividades de cada talhão e o custo por hectare (custo total ÷ área do talhão)." />
+    <x-cabecalho-pagina titulo="Custos por talhão" icone="banknotes" descricao="Custos acumulados das atividades de cada talhão e o custo por hectare (custo total ÷ área do talhão)." />
 
     <form method="GET" class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
         @if ($propriedades->count() > 1)

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\PertenceAPropriedade;
+use App\Concerns\Pesquisavel;
 use App\Enums\StatusTalhao;
 use Database\Factories\TalhaoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -31,7 +32,7 @@ use Illuminate\Support\Carbon;
 class Talhao extends Model
 {
     /** @use HasFactory<TalhaoFactory> */
-    use HasFactory, PertenceAPropriedade;
+    use HasFactory, PertenceAPropriedade, Pesquisavel;
 
     /**
      * Get the attributes that should be cast.
@@ -44,6 +45,16 @@ class Talhao extends Model
             'area' => 'float',
             'status' => StatusTalhao::class,
         ];
+    }
+
+    /**
+     * Colunas usadas pela busca da listagem.
+     *
+     * @return list<string>
+     */
+    protected function camposDeBusca(): array
+    {
+        return ['nome', 'cultura', 'safra'];
     }
 
     /**

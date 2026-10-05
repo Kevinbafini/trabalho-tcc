@@ -1,5 +1,5 @@
 <x-layouts::app title="Relatórios">
-    <x-cabecalho-pagina titulo="Relatório de custos" descricao="Filtre por propriedade, talhão, safra e período para ver os custos e as atividades que os formaram." />
+    <x-cabecalho-pagina titulo="Relatório de custos" icone="document-chart-bar" descricao="Filtre por propriedade, talhão, safra e período para ver os custos e as atividades que os formaram." />
 
     <form method="GET" class="mb-6">
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">

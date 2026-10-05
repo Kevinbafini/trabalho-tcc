@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\PertenceAPropriedade;
+use App\Concerns\Pesquisavel;
 use App\Enums\StatusEquipamento;
 use Database\Factories\MaquinaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -32,7 +33,7 @@ use Illuminate\Support\Carbon;
 class Maquina extends Model
 {
     /** @use HasFactory<MaquinaFactory> */
-    use HasFactory, PertenceAPropriedade;
+    use HasFactory, PertenceAPropriedade, Pesquisavel;
 
     /**
      * Get the attributes that should be cast.
@@ -46,6 +47,16 @@ class Maquina extends Model
             'custo_hora' => 'float',
             'status' => StatusEquipamento::class,
         ];
+    }
+
+    /**
+     * Colunas usadas pela busca da listagem.
+     *
+     * @return list<string>
+     */
+    protected function camposDeBusca(): array
+    {
+        return ['nome', 'tipo', 'modelo'];
     }
 
     /**

@@ -43,4 +43,15 @@ enum StatusRecurso: string
             self::Inativo => 'zinc',
         };
     }
+
+    /**
+     * Ícone exibido junto ao selo da situação.
+     */
+    public function icone(): string
+    {
+        return match ($this) {
+            self::Ativo => 'check-circle',
+            self::Inativo => 'minus-circle',
+        };
+    }
 }

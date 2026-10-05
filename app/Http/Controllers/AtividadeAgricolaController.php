@@ -26,33 +26,36 @@ use Illuminate\View\View;
 class AtividadeAgricolaController extends Controller
 {
     /**
-     * Lista as atividades do usuário, com filtros por propriedade, talhão e tipo.
+     * Lista as atividades do usuário, com busca e filtros por propriedade, talhão e tipo.
      */
-    public function index(Request $request, #[CurrentUser] User $usuario): View
+    public function index(Request $request, #[CurrentUser] User $usuario): View|string
     {
         $filtros = [
             'propriedade_id' => $request->integer('propriedade_id') ?: null,
             'talhao_id' => $request->integer('talhao_id') ?: null,
             'tipo' => $request->enum('tipo', TipoOperacao::class),
         ];
+        $busca = $request->string('busca')->trim()->toString();
 
-        $atividades = AtividadeAgricola::query()
+        $consulta = AtividadeAgricola::query()
             ->doUsuario($usuario)
             ->with(['talhao', 'propriedade'])
             ->when($filtros['propriedade_id'], fn (Builder $query, int $id) => $query->where('propriedade_id', $id))
             ->when($filtros['talhao_id'], fn (Builder $query, int $id) => $query->where('talhao_id', $id))
             ->when($filtros['tipo'], fn (Builder $query, TipoOperacao $tipo) => $query->where('tipo', $tipo))
-            ->orderByDesc('data')
-            ->orderByDesc('id')
-            ->paginate(15)
-            ->withQueryString();
+            ->buscar($busca);
 
-        return view('atividades.index', [
+        $custoEncontrado = floatval((clone $consulta)->sum('custo_total'));
+        $atividades = $consulta->orderByDesc('data')->orderByDesc('id')->paginate(15)->withQueryString();
+
+        return $this->responderListagem($request, view('atividades.index', [
             'atividades' => $atividades,
             'propriedades' => $this->propriedadesDoUsuario($usuario),
             'talhoes' => Talhao::query()->doUsuario($usuario)->with('propriedade')->orderBy('nome')->get(),
             'filtros' => $filtros,
-        ]);
+            'busca' => $busca,
+            'custoEncontrado' => $custoEncontrado,
+        ]));
     }
 
     /**

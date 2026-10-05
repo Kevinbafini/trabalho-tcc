@@ -1,53 +1,54 @@
 <x-layouts::app title="Atividades agrícolas">
-    <x-cabecalho-pagina titulo="Atividades agrícolas" descricao="Operações realizadas nos talhões e o custo apropriado a cada uma.">
+    <x-cabecalho-pagina titulo="Atividades agrícolas" icone="clipboard-document-list" descricao="Operações realizadas nos talhões e o custo apropriado a cada uma.">
         <x-slot:acoes>
             <flux:button :href="route('atividades.create', array_filter(['propriedade_id' => $filtros['propriedade_id']]))" variant="primary" icon="plus" wire:navigate>Registrar atividade</flux:button>
         </x-slot:acoes>
     </x-cabecalho-pagina>
 
-    <form method="GET" class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
-        @if ($propriedades->count() > 1)
-            <flux:select name="propriedade_id" label="Propriedade">
-                <flux:select.option value="">Todas</flux:select.option>
-                @foreach ($propriedades as $propriedade)
-                    <flux:select.option :value="$propriedade->id" :selected="$filtros['propriedade_id'] === $propriedade->id">{{ $propriedade->nome }}</flux:select.option>
-                @endforeach
-            </flux:select>
-        @endif
+    <x-busca>
+        <x-slot:filtros>
+            <x-busca.campo placeholder="Buscar por operação, talhão, descrição ou safra..." :valor="$busca" />
 
-        <flux:select name="talhao_id" label="Talhão">
-            <flux:select.option value="">Todos</flux:select.option>
-            @foreach ($talhoes as $talhao)
-                <flux:select.option :value="$talhao->id" :selected="$filtros['talhao_id'] === $talhao->id">
-                    {{ $talhao->nome }}{{ $propriedades->count() > 1 ? ' ('.$talhao->propriedade->nome.')' : '' }}
-                </flux:select.option>
-            @endforeach
-        </flux:select>
-
-        <flux:select name="tipo" label="Operação">
-            <flux:select.option value="">Todas</flux:select.option>
-            @foreach (\App\Enums\TipoOperacao::cases() as $tipo)
-                <flux:select.option :value="$tipo->value" :selected="$filtros['tipo'] === $tipo">{{ $tipo->rotulo() }}</flux:select.option>
-            @endforeach
-        </flux:select>
-
-        <div class="flex gap-2">
-            <flux:button type="submit" icon="funnel">Filtrar</flux:button>
-            @if (array_filter($filtros))
-                <flux:button :href="route('atividades.index')" variant="ghost" wire:navigate>Limpar</flux:button>
+            @if ($propriedades->count() > 1)
+                <x-busca.filtro nome="propriedade_id" rotulo="Propriedade">
+                    <flux:select.option value="">Todas as propriedades</flux:select.option>
+                    @foreach ($propriedades as $propriedade)
+                        <flux:select.option :value="$propriedade->id" :selected="$filtros['propriedade_id'] === $propriedade->id">{{ $propriedade->nome }}</flux:select.option>
+                    @endforeach
+                </x-busca.filtro>
             @endif
-        </div>
-    </form>
 
-    @if ($atividades->isEmpty())
-        @if (array_filter($filtros))
-            <x-estado-vazio icone="funnel" titulo="Nenhuma atividade encontrada" descricao="Não há atividades para os filtros selecionados." />
-        @else
-            <x-estado-vazio icone="clipboard-document-list" titulo="Nenhuma atividade registrada" descricao="Registre as operações realizadas nos talhões para que o sistema calcule os custos.">
-                <flux:button :href="route('atividades.create')" variant="primary" icon="plus" wire:navigate>Registrar atividade</flux:button>
-            </x-estado-vazio>
-        @endif
-    @else
-        @include('atividades.tabela', ['atividades' => $atividades, 'mostrarTalhao' => true])
-    @endif
+            <x-busca.filtro nome="talhao_id" rotulo="Talhão">
+                <flux:select.option value="">Todos os talhões</flux:select.option>
+                @foreach ($talhoes as $talhao)
+                    <flux:select.option :value="$talhao->id" :selected="$filtros['talhao_id'] === $talhao->id">
+                        {{ $talhao->nome }}{{ $propriedades->count() > 1 ? ' ('.$talhao->propriedade->nome.')' : '' }}
+                    </flux:select.option>
+                @endforeach
+            </x-busca.filtro>
+
+            <x-busca.filtro nome="tipo" rotulo="Operação">
+                <flux:select.option value="">Todas as operações</flux:select.option>
+                @foreach (\App\Enums\TipoOperacao::cases() as $tipo)
+                    <flux:select.option :value="$tipo->value" :selected="$filtros['tipo'] === $tipo">{{ $tipo->rotulo() }}</flux:select.option>
+                @endforeach
+            </x-busca.filtro>
+        </x-slot:filtros>
+
+        @fragment('resultados')
+            @if ($atividades->isEmpty() && ($busca !== '' || array_filter($filtros)))
+                <x-busca.sem-resultados :busca="$busca" />
+            @elseif ($atividades->isEmpty())
+                <x-estado-vazio icone="clipboard-document-list" titulo="Nenhuma atividade registrada" descricao="Registre as operações realizadas nos talhões para que o sistema calcule os custos.">
+                    <flux:button :href="route('atividades.create')" variant="primary" icon="plus" wire:navigate>Registrar atividade</flux:button>
+                </x-estado-vazio>
+            @else
+                <x-resumo-da-lista :total="$atividades->total()" singular="atividade" plural="atividades">
+                    custo total de <span class="font-semibold text-zinc-800 tabular-nums dark:text-white">{{ Number::currency($custoEncontrado) }}</span>
+                </x-resumo-da-lista>
+
+                @include('atividades.tabela', ['atividades' => $atividades, 'mostrarTalhao' => true, 'alternador' => false])
+            @endif
+        @endfragment
+    </x-busca>
 </x-layouts::app>

@@ -15,25 +15,28 @@ use Illuminate\View\View;
 class MaquinaController extends Controller
 {
     /**
-     * Lista as máquinas do usuário, com filtro opcional por propriedade.
+     * Lista as máquinas do usuário, com busca e filtro opcional por propriedade.
      */
-    public function index(Request $request, #[CurrentUser] User $usuario): View
+    public function index(Request $request, #[CurrentUser] User $usuario): View|string
     {
         $filtroPropriedade = $request->integer('propriedade_id') ?: null;
+        $busca = $request->string('busca')->trim()->toString();
 
         $maquinas = Maquina::query()
             ->doUsuario($usuario)
             ->with('propriedade')
             ->when($filtroPropriedade, fn (Builder $query, int $id) => $query->where('propriedade_id', $id))
+            ->buscar($busca)
             ->orderBy('nome')
             ->paginate(15)
             ->withQueryString();
 
-        return view('maquinas.index', [
+        return $this->responderListagem($request, view('maquinas.index', [
             'maquinas' => $maquinas,
             'propriedades' => $this->propriedadesDoUsuario($usuario),
             'filtroPropriedade' => $filtroPropriedade,
-        ]);
+            'busca' => $busca,
+        ]));
     }
 
     /**

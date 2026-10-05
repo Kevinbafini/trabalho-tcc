@@ -46,4 +46,16 @@ enum StatusTalhao: string
             self::Inativo => 'zinc',
         };
     }
+
+    /**
+     * Ícone exibido junto ao selo da situação.
+     */
+    public function icone(): string
+    {
+        return match ($this) {
+            self::EmCultivo => 'check-circle',
+            self::EmPousio => 'pause-circle',
+            self::Inativo => 'minus-circle',
+        };
+    }
 }

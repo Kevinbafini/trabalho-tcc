@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\PertenceAPropriedade;
+use App\Concerns\Pesquisavel;
 use App\Enums\StatusRecurso;
 use Database\Factories\FuncionarioFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -29,7 +30,7 @@ use Illuminate\Support\Carbon;
 class Funcionario extends Model
 {
     /** @use HasFactory<FuncionarioFactory> */
-    use HasFactory, PertenceAPropriedade;
+    use HasFactory, PertenceAPropriedade, Pesquisavel;
 
     /**
      * Get the attributes that should be cast.
@@ -42,6 +43,16 @@ class Funcionario extends Model
             'custo_hora' => 'float',
             'status' => StatusRecurso::class,
         ];
+    }
+
+    /**
+     * Colunas usadas pela busca da listagem.
+     *
+     * @return list<string>
+     */
+    protected function camposDeBusca(): array
+    {
+        return ['nome', 'funcao'];
     }
 
     /**

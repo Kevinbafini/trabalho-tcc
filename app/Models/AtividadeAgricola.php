@@ -7,12 +7,15 @@ use App\Enums\TipoOperacao;
 use Carbon\CarbonInterface;
 use Database\Factories\AtividadeAgricolaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Atividade agrícola realizada em um talhão.
@@ -56,6 +59,38 @@ class AtividadeAgricola extends Model
             'custo_mao_obra' => 'float',
             'custo_total' => 'float',
         ];
+    }
+
+    /**
+     * Busca da listagem: procura o termo na descrição, na safra, no nome do
+     * talhão e no nome do tipo de operação (ex.: "pulveriz" encontra Pulverização).
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function buscar(Builder $query, string $termo): void
+    {
+        $termo = trim($termo);
+
+        if ($termo === '') {
+            return;
+        }
+
+        $termoSemAcento = Str::lower(Str::ascii($termo));
+        $tipos = array_values(array_map(
+            fn (TipoOperacao $tipo): string => $tipo->value,
+            array_filter(
+                TipoOperacao::cases(),
+                fn (TipoOperacao $tipo): bool => Str::contains(Str::lower(Str::ascii($tipo->rotulo())), $termoSemAcento),
+            ),
+        ));
+
+        $query->where(function (Builder $consulta) use ($termo, $tipos): void {
+            $consulta->whereLike($this->qualifyColumn('descricao'), "%{$termo}%")
+                ->orWhereLike($this->qualifyColumn('safra'), "%{$termo}%")
+                ->orWhereHas('talhao', fn (Builder $talhao) => $talhao->whereLike('nome', "%{$termo}%"))
+                ->when($tipos !== [], fn (Builder $q) => $q->orWhereIn($this->qualifyColumn('tipo'), $tipos));
+        });
     }
 
     /**

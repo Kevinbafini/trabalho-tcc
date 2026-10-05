@@ -16,25 +16,29 @@ use Illuminate\View\View;
 class TalhaoController extends Controller
 {
     /**
-     * Lista os talhões do usuário, com filtro opcional por propriedade.
+     * Lista os talhões do usuário, com busca e filtro opcional por propriedade.
      */
-    public function index(Request $request, #[CurrentUser] User $usuario): View
+    public function index(Request $request, #[CurrentUser] User $usuario): View|string
     {
         $filtroPropriedade = $request->integer('propriedade_id') ?: null;
+        $busca = $request->string('busca')->trim()->toString();
 
-        $talhoes = Talhao::query()
+        $consulta = Talhao::query()
             ->doUsuario($usuario)
             ->with('propriedade')
             ->when($filtroPropriedade, fn (Builder $query, int $id) => $query->where('propriedade_id', $id))
-            ->orderBy('nome')
-            ->paginate(15)
-            ->withQueryString();
+            ->buscar($busca);
 
-        return view('talhoes.index', [
+        $areaEncontrada = floatval((clone $consulta)->sum('area'));
+        $talhoes = $consulta->orderBy('nome')->paginate(15)->withQueryString();
+
+        return $this->responderListagem($request, view('talhoes.index', [
             'talhoes' => $talhoes,
             'propriedades' => $this->propriedadesDoUsuario($usuario),
             'filtroPropriedade' => $filtroPropriedade,
-        ]);
+            'busca' => $busca,
+            'areaEncontrada' => $areaEncontrada,
+        ]));
     }
 
     /**
