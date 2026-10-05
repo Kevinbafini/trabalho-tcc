@@ -1,21 +1,28 @@
 {{--
     Campo "Propriedade" dos formulários de talhões e recursos.
-    No cadastro: seleção (ou fixa, se o usuário tiver só uma propriedade).
-    Na edição: apenas exibida, pois a propriedade não pode ser alterada.
+    - Edição: apenas exibida (a propriedade não pode ser alterada).
+    - Cadastro com uma propriedade: exibida e enviada em campo oculto.
+    - Cadastro com várias propriedades: seleção.
 --}}
-@if ($registro->exists)
-    <flux:field>
-        <flux:label>Propriedade</flux:label>
-        <flux:text class="font-medium text-zinc-800 dark:text-white">{{ $registro->propriedade->nome }}</flux:text>
-        <flux:description>A propriedade não pode ser alterada após o cadastro.</flux:description>
-    </flux:field>
-@elseif ($propriedades->count() === 1)
-    <input type="hidden" name="propriedade_id" value="{{ $propriedades->first()->id }}">
+@if ($registro->exists || $propriedades->count() === 1)
+    @unless ($registro->exists)
+        <input type="hidden" name="propriedade_id" value="{{ $propriedades->first()->id }}">
+    @endunless
 
-    <flux:field>
-        <flux:label>Propriedade</flux:label>
-        <flux:text class="font-medium text-zinc-800 dark:text-white">{{ $propriedades->first()->nome }}</flux:text>
-    </flux:field>
+    <div class="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-white/5">
+        <flux:icon.home-modern class="size-5 shrink-0 text-zinc-400" />
+
+        <div class="min-w-0">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Propriedade</p>
+            <p class="truncate text-sm font-medium text-zinc-800 dark:text-white">
+                {{ $registro->exists ? $registro->propriedade->nome : $propriedades->first()->nome }}
+            </p>
+        </div>
+
+        @if ($registro->exists)
+            <span class="ms-auto hidden text-xs text-zinc-500 sm:block dark:text-zinc-400">Não pode ser alterada</span>
+        @endif
+    </div>
 @else
     <flux:select name="propriedade_id" label="Propriedade" placeholder="Selecione a propriedade">
         @foreach ($propriedades as $propriedade)

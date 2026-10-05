@@ -1,9 +1,14 @@
-<div class="space-y-6">
+<x-formulario.secao titulo="Identificação" icone="truck" descricao="Tratores, colhedoras, pulverizadores e demais máquinas da propriedade.">
     @include('partials.campo-propriedade', ['registro' => $maquina])
 
-    <div class="grid gap-6 sm:grid-cols-2">
-        <flux:input name="nome" label="Nome" :value="old('nome', $maquina->nome)" placeholder="Ex.: Trator 01" required />
+    <div class="grid items-start gap-6 sm:grid-cols-2">
+        <flux:input name="nome" label="Nome" :value="old('nome', $maquina->nome)" placeholder="Ex.: Trator John Deere 6110J" required />
         <flux:input name="tipo" label="Tipo" :value="old('tipo', $maquina->tipo)" placeholder="Ex.: Trator" list="tipos-de-maquina" required />
+    </div>
+
+    <div class="grid items-start gap-6 sm:grid-cols-2">
+        <flux:input name="modelo" label="Modelo (opcional)" :value="old('modelo', $maquina->modelo)" placeholder="Ex.: 6110J" />
+        <flux:input type="number" min="1950" step="1" name="ano" label="Ano (opcional)" :value="old('ano', $maquina->ano)" placeholder="Ex.: 2020" />
     </div>
 
     <datalist id="tipos-de-maquina">
@@ -11,29 +16,20 @@
             <option value="{{ $tipo }}"></option>
         @endforeach
     </datalist>
+</x-formulario.secao>
 
-    <div class="grid gap-6 sm:grid-cols-3">
-        <flux:input name="modelo" label="Modelo (opcional)" :value="old('modelo', $maquina->modelo)" />
-        <flux:input type="number" min="1950" step="1" name="ano" label="Ano (opcional)" :value="old('ano', $maquina->ano)" />
-        <flux:input
-            type="number"
-            step="0.01"
-            min="0"
-            inputmode="decimal"
-            name="custo_hora"
-            label="Custo por hora (R$)"
-            :value="old('custo_hora', $maquina->custo_hora)"
-            required
-        />
+<x-formulario.secao titulo="Custo de uso" icone="banknotes" descricao="Custo da máquina na atividade = horas de uso × custo por hora. Inclua o custo operacional dos implementos que ela traciona.">
+    <div class="sm:max-w-xs">
+        <flux:input.group label="Custo por hora" name="custo_hora" description:trailing="Atividades já registradas mantêm o valor do dia do lançamento.">
+            <flux:input.group.prefix>R$</flux:input.group.prefix>
+            <flux:input type="number" step="0.01" min="0" inputmode="decimal" name="custo_hora" :value="old('custo_hora', $maquina->custo_hora)" placeholder="0,00" required />
+            <flux:input.group.suffix>/ hora</flux:input.group.suffix>
+        </flux:input.group>
     </div>
+</x-formulario.secao>
 
-    <flux:text class="text-sm">O custo por hora deve incluir o custo operacional dos implementos tracionados pela máquina. Atividades já registradas mantêm o valor do dia do lançamento.</flux:text>
+<x-formulario.secao titulo="Situação" icone="check-circle" descricao="Somente máquinas ativas aparecem para novas atividades.">
+    @include('partials.campo-situacao', ['opcoes' => \App\Enums\StatusEquipamento::cases(), 'selecionada' => $maquina->status?->value])
+</x-formulario.secao>
 
-    <flux:select name="status" label="Situação" description="Somente máquinas ativas aparecem para novas atividades.">
-        @foreach (\App\Enums\StatusEquipamento::cases() as $status)
-            <flux:select.option :value="$status->value" :selected="old('status', $maquina->status?->value) === $status->value">{{ $status->rotulo() }}</flux:select.option>
-        @endforeach
-    </flux:select>
-
-    @include('partials.botoes-formulario', ['cancelar' => route('maquinas.index')])
-</div>
+<x-formulario.acoes :cancelar="route('maquinas.index')" />

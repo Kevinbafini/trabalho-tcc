@@ -24,6 +24,18 @@ enum StatusTalhao: string
     }
 
     /**
+     * Explicação curta exibida no formulário.
+     */
+    public function descricao(): string
+    {
+        return match ($this) {
+            self::EmCultivo => 'Ocupa área e recebe atividades.',
+            self::EmPousio => 'Ocupa área, mas está sem cultivo.',
+            self::Inativo => 'Não ocupa área nem recebe novas atividades.',
+        };
+    }
+
+    /**
      * Cor do selo (badge) exibido nas listagens.
      */
     public function cor(): string

@@ -25,6 +25,18 @@ enum StatusEquipamento: string
     }
 
     /**
+     * Explicação curta exibida no formulário.
+     */
+    public function descricao(): string
+    {
+        return match ($this) {
+            self::Ativo => 'Disponível para novas atividades.',
+            self::EmManutencao => 'Temporariamente indisponível.',
+            self::Inativo => 'Fora de uso, mas mantido no histórico.',
+        };
+    }
+
+    /**
      * Cor do selo (badge) exibido nas listagens.
      */
     public function cor(): string

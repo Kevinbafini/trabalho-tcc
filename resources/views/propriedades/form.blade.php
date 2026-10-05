@@ -1,11 +1,14 @@
-<div class="space-y-6">
-    <flux:input name="nome" label="Nome da propriedade" :value="old('nome', $propriedade->nome)" placeholder="Ex.: Fazenda Santa Helena" required autofocus />
+<x-formulario.secao titulo="Identificação" icone="home-modern" descricao="Nome da propriedade rural e de quem é o proprietário.">
+    <div class="grid items-start gap-6 sm:grid-cols-2">
+        <flux:input name="nome" label="Nome da propriedade" :value="old('nome', $propriedade->nome)" placeholder="Ex.: Fazenda Santa Helena" required autofocus />
+        <flux:input name="proprietario" label="Proprietário" :value="old('proprietario', $propriedade->proprietario)" placeholder="Nome completo" required />
+    </div>
+</x-formulario.secao>
 
-    <flux:input name="proprietario" label="Proprietário" :value="old('proprietario', $propriedade->proprietario)" required />
-
-    <div class="grid gap-6 sm:grid-cols-3">
+<x-formulario.secao titulo="Localização e área" icone="map-pin" descricao="A área total limita a soma das áreas dos talhões ativos da propriedade.">
+    <div class="grid items-start gap-6 sm:grid-cols-3">
         <div class="sm:col-span-2">
-            <flux:input name="municipio" label="Município" :value="old('municipio', $propriedade->municipio)" required />
+            <flux:input name="municipio" label="Município" :value="old('municipio', $propriedade->municipio)" placeholder="Ex.: Bebedouro" required />
         </div>
 
         <flux:select name="uf" label="UF" placeholder="Selecione">
@@ -15,19 +18,16 @@
         </flux:select>
     </div>
 
-    <flux:input
-        type="number"
-        step="0.01"
-        min="0"
-        inputmode="decimal"
-        name="area_total"
-        label="Área total (hectares)"
-        description="A soma das áreas dos talhões ativos não poderá ultrapassar este valor."
-        :value="old('area_total', $propriedade->area_total)"
-        required
-    />
+    <div class="sm:max-w-xs">
+        <flux:input.group label="Área total" name="area_total">
+            <flux:input type="number" step="0.01" min="0" inputmode="decimal" name="area_total" :value="old('area_total', $propriedade->area_total)" placeholder="0,00" required />
+            <flux:input.group.suffix>hectares</flux:input.group.suffix>
+        </flux:input.group>
+    </div>
+</x-formulario.secao>
 
-    <flux:textarea name="observacoes" label="Observações (opcional)" rows="3">{{ old('observacoes', $propriedade->observacoes) }}</flux:textarea>
+<x-formulario.secao titulo="Observações" icone="document-text" descricao="Informações adicionais sobre a propriedade (opcional).">
+    <flux:textarea name="observacoes" label="Observações" rows="4" placeholder="Ex.: área de preservação, sede, acessos...">{{ old('observacoes', $propriedade->observacoes) }}</flux:textarea>
+</x-formulario.secao>
 
-    @include('partials.botoes-formulario', ['cancelar' => $propriedade->exists ? route('propriedades.show', $propriedade) : route('propriedades.index')])
-</div>
+<x-formulario.acoes :cancelar="$propriedade->exists ? route('propriedades.show', $propriedade) : route('propriedades.index')" />
