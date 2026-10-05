@@ -5,6 +5,8 @@
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
+        @include('livewire.auth.partials.login-rapido')
+
         <x-passkey-verify />
 
         <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AtividadeAgricolaController;
 use App\Http\Controllers\CustoTalhaoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\ImplementoController;
 use App\Http\Controllers\InsumoController;
@@ -13,6 +14,9 @@ use App\Http\Controllers\TalhaoController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'dashboard')->name('home');
+
+// Login rápido de desenvolvimento (responde 404 fora do ambiente local).
+Route::post('dev/login', DevLoginController::class)->middleware('guest')->name('dev.login');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');

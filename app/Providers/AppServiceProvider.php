@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\DevLoginController;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -26,6 +29,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureDevLogin();
+    }
+
+    /**
+     * Entrega à tela de login a lista de usuários do login rápido,
+     * somente quando ele está habilitado (ambiente local + DEV_LOGIN=true).
+     */
+    protected function configureDevLogin(): void
+    {
+        View::composer('livewire.auth.login', function (\Illuminate\View\View $view): void {
+            $view->with('usuariosDoLoginRapido', DevLoginController::habilitado()
+                ? User::query()->orderBy('id')->limit(100)->get(['id', 'name', 'email'])
+                : collect());
+        });
     }
 
     /**

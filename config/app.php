@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Login rápido de desenvolvimento
+    |--------------------------------------------------------------------------
+    |
+    | Mostra na tela de login um atalho para entrar como qualquer usuário,
+    | sem senha. Só funciona quando DEV_LOGIN=true E o ambiente é "local"
+    | (APP_ENV=local). Nunca habilite no servidor usado pelos estudantes.
+    |
+    */
+
+    'dev_login' => (bool) env('DEV_LOGIN', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
