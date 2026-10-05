@@ -163,7 +163,10 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        Features::emailVerification(),
+        // Verificação de e-mail desativada: o usuário acessa o sistema logo após
+        // o cadastro (necessário para os testes de usabilidade SUS). Para reativar,
+        // descomente a linha abaixo e implemente MustVerifyEmail no model User.
+        // Features::emailVerification(),
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,

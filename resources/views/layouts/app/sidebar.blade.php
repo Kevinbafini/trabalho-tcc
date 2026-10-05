@@ -11,24 +11,31 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
-                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </flux:sidebar.item>
+                <x-menu-item rota="dashboard" icone="home">Dashboard</x-menu-item>
+
+                <flux:sidebar.group heading="Gestão" class="grid">
+                    <x-menu-item rota="propriedades.index" icone="home-modern">Propriedades</x-menu-item>
+                    <x-menu-item rota="talhoes.index" icone="map">Talhões</x-menu-item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group heading="Recursos" class="grid">
+                    <x-menu-item rota="funcionarios.index" icone="users">Funcionários</x-menu-item>
+                    <x-menu-item rota="maquinas.index" icone="truck">Máquinas</x-menu-item>
+                    <x-menu-item rota="implementos.index" icone="wrench-screwdriver">Implementos</x-menu-item>
+                    <x-menu-item rota="insumos.index" icone="beaker">Insumos</x-menu-item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group heading="Operações" class="grid">
+                    <x-menu-item rota="atividades.index" icone="clipboard-document-list">Atividades Agrícolas</x-menu-item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group heading="Análises" class="grid">
+                    <x-menu-item rota="custos-talhoes.index" icone="banknotes">Custos por Talhão</x-menu-item>
+                    <x-menu-item rota="relatorios.index" icone="document-chart-bar">Relatórios</x-menu-item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />
-
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>

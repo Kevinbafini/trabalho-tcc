@@ -2,7 +2,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <title>
-    {{ filled($title ?? null) ? $title.' - '.config('app.name', 'Laravel') : config('app.name', 'Laravel') }}
+    {{-- __() também traduz os títulos definidos com #[Title] nos componentes Livewire. --}}
+    {{ filled($title ?? null) ? __($title).' - '.config('app.name') : config('app.name') }}
 </title>
 
 <link rel="icon" href="/favicon.ico" sizes="any">
