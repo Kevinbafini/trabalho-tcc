@@ -51,12 +51,17 @@
     </div>
 
     <div class="mt-8">
-        <flux:heading size="lg" class="mb-3">Atividades que formaram o custo</flux:heading>
+        <div class="mb-3 flex items-center justify-between gap-4">
+            <flux:heading size="lg">Atividades que formaram o custo</flux:heading>
+            @if ($atividades->isNotEmpty())
+                <x-alternador-visualizacao />
+            @endif
+        </div>
 
         @if ($atividades->isEmpty())
             <x-estado-vazio icone="funnel" titulo="Nenhuma atividade encontrada" descricao="Não há atividades para os filtros selecionados." />
         @else
-            @include('atividades.tabela', ['atividades' => $atividades, 'mostrarTalhao' => true])
+            @include('atividades.tabela', ['atividades' => $atividades, 'mostrarTalhao' => true, 'alternador' => false])
         @endif
     </div>
 </x-layouts::app>

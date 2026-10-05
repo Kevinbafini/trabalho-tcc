@@ -31,13 +31,18 @@
         </flux:callout.text>
     </flux:callout>
 
-    <div class="mt-8 space-y-8">
+    <div class="mt-8 flex items-center justify-between gap-4">
+        <flux:heading size="lg">Recursos utilizados</flux:heading>
+        <x-alternador-visualizacao />
+    </div>
+
+    <div class="mt-4 space-y-8">
         <section>
-            <flux:heading size="lg" class="mb-3">Insumos</flux:heading>
+            <flux:heading class="mb-3">Insumos</flux:heading>
             @if ($atividade->insumos->isEmpty())
                 <flux:text>Nenhum insumo utilizado.</flux:text>
             @else
-                <x-lista-responsiva>
+                <x-lista-responsiva :alternador="false">
                     <x-slot:tabela>
                         <flux:table>
                             <flux:table.columns>
@@ -73,11 +78,11 @@
         </section>
 
         <section>
-            <flux:heading size="lg" class="mb-3">Máquinas</flux:heading>
+            <flux:heading class="mb-3">Máquinas</flux:heading>
             @if ($atividade->maquinas->isEmpty())
                 <flux:text>Nenhuma máquina utilizada.</flux:text>
             @else
-                <x-lista-responsiva>
+                <x-lista-responsiva :alternador="false">
                     <x-slot:tabela>
                         <flux:table>
                             <flux:table.columns>
@@ -113,11 +118,11 @@
         </section>
 
         <section>
-            <flux:heading size="lg" class="mb-3">Mão de obra</flux:heading>
+            <flux:heading class="mb-3">Mão de obra</flux:heading>
             @if ($atividade->funcionarios->isEmpty())
                 <flux:text>Nenhum funcionário informado.</flux:text>
             @else
-                <x-lista-responsiva>
+                <x-lista-responsiva :alternador="false">
                     <x-slot:tabela>
                         <flux:table>
                             <flux:table.columns>
@@ -155,7 +160,7 @@
         </section>
 
         <section>
-            <flux:heading size="lg" class="mb-3">Implementos</flux:heading>
+            <flux:heading class="mb-3">Implementos</flux:heading>
             @if ($atividade->implementos->isEmpty())
                 <flux:text>Nenhum implemento associado.</flux:text>
             @else

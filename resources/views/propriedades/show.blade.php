@@ -22,14 +22,19 @@
     </div>
 
     <div class="mt-8">
-        <flux:heading size="lg" class="mb-3">Talhões e custos</flux:heading>
+        <div class="mb-3 flex items-center justify-between gap-4">
+            <flux:heading size="lg">Talhões e custos</flux:heading>
+            @if ($custosPorTalhao->isNotEmpty())
+                <x-alternador-visualizacao />
+            @endif
+        </div>
 
         @if ($custosPorTalhao->isEmpty())
             <x-estado-vazio icone="map" titulo="Nenhum talhão cadastrado" descricao="Divida a propriedade em talhões para registrar as atividades e acompanhar o custo por hectare.">
                 <flux:button :href="route('talhoes.create', ['propriedade_id' => $propriedade->id])" variant="primary" icon="plus" wire:navigate>Cadastrar talhão</flux:button>
             </x-estado-vazio>
         @else
-            @include('custos-talhoes.tabela', ['custosPorTalhao' => $custosPorTalhao, 'mostrarPropriedade' => false])
+            @include('custos-talhoes.tabela', ['custosPorTalhao' => $custosPorTalhao, 'mostrarPropriedade' => false, 'alternador' => false])
         @endif
     </div>
 

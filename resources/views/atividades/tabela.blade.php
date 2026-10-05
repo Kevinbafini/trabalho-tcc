@@ -1,5 +1,5 @@
 {{-- Atividades com seus custos (dashboard, atividades, talhão e relatórios): tabela em telas grandes e cards em telas menores. --}}
-<x-lista-responsiva :paginacao="$atividades">
+<x-lista-responsiva :paginacao="$atividades" :alternador="$alternador ?? true">
     <x-slot:tabela>
         <flux:table>
             <flux:table.columns>

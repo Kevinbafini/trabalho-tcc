@@ -1,5 +1,5 @@
 {{-- Custos acumulados por talhão (custos por talhão e detalhes da propriedade): tabela em telas grandes e cards em telas menores. --}}
-<x-lista-responsiva>
+<x-lista-responsiva :alternador="$alternador ?? true">
     <x-slot:tabela>
         <flux:table>
             <flux:table.columns>

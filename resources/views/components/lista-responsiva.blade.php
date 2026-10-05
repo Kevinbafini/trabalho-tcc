@@ -1,20 +1,41 @@
 {{--
-    Exibe a mesma lista em dois formatos, conforme o tamanho da tela:
-    cards em telas menores e tabela a partir de 1280px (breakpoint xl).
+    Exibe a mesma lista em dois formatos:
 
-    Slots: $tabela (conteúdo para telas grandes) e $cartoes (telas pequenas).
-    Paginação opcional: :paginacao="$paginator" (exibida uma única vez, abaixo).
+    - Telas menores que 1280px: sempre cards.
+    - Telas a partir de 1280px (breakpoint xl): tabela ou cards, conforme o
+      modo escolhido no alternador. A escolha vale para todas as listas e fica
+      salva no navegador (veja resources/js/visualizacao-listas.js).
+
+    Slots: $tabela e $cartoes.
+    Props: :paginacao="$paginator" (opcional) e :alternador="false" quando a página já
+    exibe o <x-alternador-visualizacao /> em outro lugar (ex.: na linha do título).
 --}}
 @props([
     'paginacao' => null,
+    'alternador' => true,
 ])
 
-<div {{ $attributes }}>
-    <div class="hidden xl:block">
+<div
+    x-data="visualizacaoDasListas()"
+    x-on:visualizacao-alterada.window="modo = $event.detail"
+    {{ $attributes }}
+>
+    @if ($alternador)
+        <div class="mb-3 hidden justify-end xl:flex">
+            <x-alternador-visualizacao />
+        </div>
+    @endif
+
+    {{-- Tabela: só em telas grandes e no modo "tabela". --}}
+    <div class="hidden xl:block" x-show="modo === 'tabela'">
         {{ $tabela }}
     </div>
 
-    <div class="grid gap-3 sm:grid-cols-2 xl:hidden">
+    {{-- Cards: sempre em telas menores; em telas grandes, só no modo "cartoes". --}}
+    <div
+        class="grid gap-3 sm:grid-cols-2 xl:hidden"
+        x-bind:class="modo === 'cartoes' && 'xl:grid! xl:grid-cols-3 2xl:grid-cols-4'"
+    >
         {{ $cartoes }}
     </div>
 

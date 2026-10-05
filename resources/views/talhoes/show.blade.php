@@ -28,14 +28,19 @@
     </div>
 
     <div class="mt-8">
-        <flux:heading size="lg" class="mb-3">Atividades que formam o custo</flux:heading>
+        <div class="mb-3 flex items-center justify-between gap-4">
+            <flux:heading size="lg">Atividades que formam o custo</flux:heading>
+            @if ($atividades->isNotEmpty())
+                <x-alternador-visualizacao />
+            @endif
+        </div>
 
         @if ($atividades->isEmpty())
             <x-estado-vazio icone="clipboard-document-list" titulo="Nenhuma atividade registrada" descricao="As atividades realizadas neste talhão e seus custos aparecerão aqui.">
                 <flux:button :href="route('atividades.create', ['propriedade_id' => $talhao->propriedade_id, 'talhao_id' => $talhao->id])" variant="primary" icon="plus" wire:navigate>Registrar atividade</flux:button>
             </x-estado-vazio>
         @else
-            @include('atividades.tabela', ['atividades' => $atividades, 'mostrarTalhao' => false])
+            @include('atividades.tabela', ['atividades' => $atividades, 'mostrarTalhao' => false, 'alternador' => false])
         @endif
     </div>
 </x-layouts::app>

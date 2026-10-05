@@ -90,10 +90,13 @@
             <div class="mt-8">
                 <div class="mb-3 flex items-center justify-between gap-4">
                     <flux:heading size="lg">Últimas atividades</flux:heading>
-                    <flux:link :href="route('atividades.index', array_filter(['propriedade_id' => $propriedadeSelecionada]))" class="text-sm" wire:navigate>Ver todas</flux:link>
+                    <div class="flex items-center gap-4">
+                        <x-alternador-visualizacao />
+                        <flux:link :href="route('atividades.index', array_filter(['propriedade_id' => $propriedadeSelecionada]))" class="text-sm" wire:navigate>Ver todas</flux:link>
+                    </div>
                 </div>
 
-                @include('atividades.tabela', ['atividades' => $ultimasAtividades, 'mostrarTalhao' => true])
+                @include('atividades.tabela', ['atividades' => $ultimasAtividades, 'mostrarTalhao' => true, 'alternador' => false])
             </div>
         @endif
     @endif
