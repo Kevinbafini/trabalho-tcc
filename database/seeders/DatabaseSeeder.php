@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Services\DadosDemonstracaoService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,14 +13,17 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * Cria o usuário administrador com a propriedade de demonstração.
+     * Para preparar dados de outros usuários: php artisan demo:gerar {email}
      */
-    public function run(): void
+    public function run(DadosDemonstracaoService $demonstracao): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
+        $administrador = User::factory()->create([
             'name' => 'admin user',
             'email' => 'admin@admin.com',
         ]);
+
+        $demonstracao->gerar($administrador);
     }
 }
