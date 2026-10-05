@@ -12,43 +12,71 @@
             <flux:button :href="route('funcionarios.create')" variant="primary" icon="plus" wire:navigate>Cadastrar funcionário</flux:button>
         </x-estado-vazio>
     @else
-        <flux:table :paginate="$funcionarios">
-            <flux:table.columns>
-                <flux:table.column>Nome</flux:table.column>
-                @if ($propriedades->count() > 1)
-                    <flux:table.column>Propriedade</flux:table.column>
-                @endif
-                <flux:table.column>Função</flux:table.column>
-                <flux:table.column align="end">Custo por hora</flux:table.column>
-                <flux:table.column>Situação</flux:table.column>
-                <flux:table.column align="end"><span class="sr-only">Ações</span></flux:table.column>
-            </flux:table.columns>
-
-            <flux:table.rows>
-                @foreach ($funcionarios as $funcionario)
-                    <flux:table.row :key="$funcionario->id">
-                        <flux:table.cell variant="strong">{{ $funcionario->nome }}</flux:table.cell>
+        <x-lista-responsiva :paginacao="$funcionarios">
+            <x-slot:tabela>
+                <flux:table>
+                    <flux:table.columns>
+                        <flux:table.column>Nome</flux:table.column>
                         @if ($propriedades->count() > 1)
-                            <flux:table.cell>{{ $funcionario->propriedade->nome }}</flux:table.cell>
+                            <flux:table.column>Propriedade</flux:table.column>
                         @endif
-                        <flux:table.cell>{{ $funcionario->funcao }}</flux:table.cell>
-                        <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($funcionario->custo_hora) }}/h</flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.column>Função</flux:table.column>
+                        <flux:table.column align="end">Custo por hora</flux:table.column>
+                        <flux:table.column>Situação</flux:table.column>
+                        <flux:table.column align="end"><span class="sr-only">Ações</span></flux:table.column>
+                    </flux:table.columns>
+
+                    <flux:table.rows>
+                        @foreach ($funcionarios as $funcionario)
+                            <flux:table.row :key="$funcionario->id">
+                                <flux:table.cell variant="strong">{{ $funcionario->nome }}</flux:table.cell>
+                                @if ($propriedades->count() > 1)
+                                    <flux:table.cell>{{ $funcionario->propriedade->nome }}</flux:table.cell>
+                                @endif
+                                <flux:table.cell>{{ $funcionario->funcao }}</flux:table.cell>
+                                <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($funcionario->custo_hora) }}/h</flux:table.cell>
+                                <flux:table.cell>
+                                    <flux:badge size="sm" :color="$funcionario->status->cor()">{{ $funcionario->status->rotulo() }}</flux:badge>
+                                </flux:table.cell>
+                                <flux:table.cell align="end">
+                                    <div class="flex justify-end gap-1">
+                                        <flux:button size="sm" variant="ghost" icon="pencil-square" :href="route('funcionarios.edit', $funcionario)" wire:navigate>Editar</flux:button>
+                                        <x-confirmar-exclusao
+                                            :acao="route('funcionarios.destroy', $funcionario)"
+                                            :nome="'funcionario-'.$funcionario->id"
+                                            :mensagem="'Deseja excluir o funcionário “'.$funcionario->nome.'”? Funcionários que já participaram de atividades não podem ser excluídos.'"
+                                        />
+                                    </div>
+                                </flux:table.cell>
+                            </flux:table.row>
+                        @endforeach
+                    </flux:table.rows>
+                </flux:table>
+            </x-slot:tabela>
+
+            <x-slot:cartoes>
+                @foreach ($funcionarios as $funcionario)
+                    <x-cartao :titulo="$funcionario->nome" :subtitulo="$funcionario->funcao">
+                        <x-slot:selo>
                             <flux:badge size="sm" :color="$funcionario->status->cor()">{{ $funcionario->status->rotulo() }}</flux:badge>
-                        </flux:table.cell>
-                        <flux:table.cell align="end">
-                            <div class="flex justify-end gap-1">
-                                <flux:button size="sm" variant="ghost" icon="pencil-square" :href="route('funcionarios.edit', $funcionario)" wire:navigate>Editar</flux:button>
-                                <x-confirmar-exclusao
-                                    :acao="route('funcionarios.destroy', $funcionario)"
-                                    :nome="'funcionario-'.$funcionario->id"
-                                    :mensagem="'Deseja excluir o funcionário “'.$funcionario->nome.'”? Funcionários que já participaram de atividades não podem ser excluídos.'"
-                                />
-                            </div>
-                        </flux:table.cell>
-                    </flux:table.row>
+                        </x-slot:selo>
+
+                        <x-cartao.campo rotulo="Custo por hora">{{ Number::currency($funcionario->custo_hora) }}/h</x-cartao.campo>
+                        @if ($propriedades->count() > 1)
+                            <x-cartao.campo rotulo="Propriedade">{{ $funcionario->propriedade->nome }}</x-cartao.campo>
+                        @endif
+
+                        <x-slot:acoes>
+                            <flux:button size="sm" variant="ghost" icon="pencil-square" :href="route('funcionarios.edit', $funcionario)" wire:navigate>Editar</flux:button>
+                            <x-confirmar-exclusao
+                                :acao="route('funcionarios.destroy', $funcionario)"
+                                :nome="'funcionario-cartao-'.$funcionario->id"
+                                :mensagem="'Deseja excluir o funcionário “'.$funcionario->nome.'”? Funcionários que já participaram de atividades não podem ser excluídos.'"
+                            />
+                        </x-slot:acoes>
+                    </x-cartao>
                 @endforeach
-            </flux:table.rows>
-        </flux:table>
+            </x-slot:cartoes>
+        </x-lista-responsiva>
     @endif
 </x-layouts::app>

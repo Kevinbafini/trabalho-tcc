@@ -37,24 +37,38 @@
             @if ($atividade->insumos->isEmpty())
                 <flux:text>Nenhum insumo utilizado.</flux:text>
             @else
-                <flux:table>
-                    <flux:table.columns>
-                        <flux:table.column>Insumo</flux:table.column>
-                        <flux:table.column align="end">Quantidade</flux:table.column>
-                        <flux:table.column align="end">Custo unitário</flux:table.column>
-                        <flux:table.column align="end">Custo total</flux:table.column>
-                    </flux:table.columns>
-                    <flux:table.rows>
+                <x-lista-responsiva>
+                    <x-slot:tabela>
+                        <flux:table>
+                            <flux:table.columns>
+                                <flux:table.column>Insumo</flux:table.column>
+                                <flux:table.column align="end">Quantidade</flux:table.column>
+                                <flux:table.column align="end">Custo unitário</flux:table.column>
+                                <flux:table.column align="end">Custo total</flux:table.column>
+                            </flux:table.columns>
+                            <flux:table.rows>
+                                @foreach ($atividade->insumos as $insumo)
+                                    <flux:table.row :key="$insumo->id">
+                                        <flux:table.cell variant="strong">{{ $insumo->nome }}</flux:table.cell>
+                                        <flux:table.cell align="end" class="tabular-nums">{{ Number::format($insumo->pivot->quantidade, maxPrecision: 3) }} {{ $insumo->unidade->value }}</flux:table.cell>
+                                        <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($insumo->pivot->custo_unitario) }}/{{ $insumo->unidade->value }}</flux:table.cell>
+                                        <flux:table.cell align="end" variant="strong" class="tabular-nums">{{ Number::currency($insumo->pivot->custo_total) }}</flux:table.cell>
+                                    </flux:table.row>
+                                @endforeach
+                            </flux:table.rows>
+                        </flux:table>
+                    </x-slot:tabela>
+
+                    <x-slot:cartoes>
                         @foreach ($atividade->insumos as $insumo)
-                            <flux:table.row :key="$insumo->id">
-                                <flux:table.cell variant="strong">{{ $insumo->nome }}</flux:table.cell>
-                                <flux:table.cell align="end" class="tabular-nums">{{ Number::format($insumo->pivot->quantidade, maxPrecision: 3) }} {{ $insumo->unidade->value }}</flux:table.cell>
-                                <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($insumo->pivot->custo_unitario) }}/{{ $insumo->unidade->value }}</flux:table.cell>
-                                <flux:table.cell align="end" variant="strong" class="tabular-nums">{{ Number::currency($insumo->pivot->custo_total) }}</flux:table.cell>
-                            </flux:table.row>
+                            <x-cartao :titulo="$insumo->nome">
+                                <x-cartao.campo rotulo="Quantidade">{{ Number::format($insumo->pivot->quantidade, maxPrecision: 3) }} {{ $insumo->unidade->value }}</x-cartao.campo>
+                                <x-cartao.campo rotulo="Custo unitário">{{ Number::currency($insumo->pivot->custo_unitario) }}/{{ $insumo->unidade->value }}</x-cartao.campo>
+                                <x-cartao.campo rotulo="Custo total" :destaque="true">{{ Number::currency($insumo->pivot->custo_total) }}</x-cartao.campo>
+                            </x-cartao>
                         @endforeach
-                    </flux:table.rows>
-                </flux:table>
+                    </x-slot:cartoes>
+                </x-lista-responsiva>
             @endif
         </section>
 
@@ -63,24 +77,38 @@
             @if ($atividade->maquinas->isEmpty())
                 <flux:text>Nenhuma máquina utilizada.</flux:text>
             @else
-                <flux:table>
-                    <flux:table.columns>
-                        <flux:table.column>Máquina</flux:table.column>
-                        <flux:table.column align="end">Horas</flux:table.column>
-                        <flux:table.column align="end">Custo por hora</flux:table.column>
-                        <flux:table.column align="end">Custo total</flux:table.column>
-                    </flux:table.columns>
-                    <flux:table.rows>
+                <x-lista-responsiva>
+                    <x-slot:tabela>
+                        <flux:table>
+                            <flux:table.columns>
+                                <flux:table.column>Máquina</flux:table.column>
+                                <flux:table.column align="end">Horas</flux:table.column>
+                                <flux:table.column align="end">Custo por hora</flux:table.column>
+                                <flux:table.column align="end">Custo total</flux:table.column>
+                            </flux:table.columns>
+                            <flux:table.rows>
+                                @foreach ($atividade->maquinas as $maquina)
+                                    <flux:table.row :key="$maquina->id">
+                                        <flux:table.cell variant="strong">{{ $maquina->nome }}</flux:table.cell>
+                                        <flux:table.cell align="end" class="tabular-nums">{{ Number::format($maquina->pivot->horas, maxPrecision: 2) }} h</flux:table.cell>
+                                        <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($maquina->pivot->custo_hora) }}/h</flux:table.cell>
+                                        <flux:table.cell align="end" variant="strong" class="tabular-nums">{{ Number::currency($maquina->pivot->custo_total) }}</flux:table.cell>
+                                    </flux:table.row>
+                                @endforeach
+                            </flux:table.rows>
+                        </flux:table>
+                    </x-slot:tabela>
+
+                    <x-slot:cartoes>
                         @foreach ($atividade->maquinas as $maquina)
-                            <flux:table.row :key="$maquina->id">
-                                <flux:table.cell variant="strong">{{ $maquina->nome }}</flux:table.cell>
-                                <flux:table.cell align="end" class="tabular-nums">{{ Number::format($maquina->pivot->horas, maxPrecision: 2) }} h</flux:table.cell>
-                                <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($maquina->pivot->custo_hora) }}/h</flux:table.cell>
-                                <flux:table.cell align="end" variant="strong" class="tabular-nums">{{ Number::currency($maquina->pivot->custo_total) }}</flux:table.cell>
-                            </flux:table.row>
+                            <x-cartao :titulo="$maquina->nome">
+                                <x-cartao.campo rotulo="Horas">{{ Number::format($maquina->pivot->horas, maxPrecision: 2) }} h</x-cartao.campo>
+                                <x-cartao.campo rotulo="Custo por hora">{{ Number::currency($maquina->pivot->custo_hora) }}/h</x-cartao.campo>
+                                <x-cartao.campo rotulo="Custo total" :destaque="true">{{ Number::currency($maquina->pivot->custo_total) }}</x-cartao.campo>
+                            </x-cartao>
                         @endforeach
-                    </flux:table.rows>
-                </flux:table>
+                    </x-slot:cartoes>
+                </x-lista-responsiva>
             @endif
         </section>
 
@@ -89,26 +117,40 @@
             @if ($atividade->funcionarios->isEmpty())
                 <flux:text>Nenhum funcionário informado.</flux:text>
             @else
-                <flux:table>
-                    <flux:table.columns>
-                        <flux:table.column>Funcionário</flux:table.column>
-                        <flux:table.column>Função</flux:table.column>
-                        <flux:table.column align="end">Horas</flux:table.column>
-                        <flux:table.column align="end">Custo por hora</flux:table.column>
-                        <flux:table.column align="end">Custo total</flux:table.column>
-                    </flux:table.columns>
-                    <flux:table.rows>
+                <x-lista-responsiva>
+                    <x-slot:tabela>
+                        <flux:table>
+                            <flux:table.columns>
+                                <flux:table.column>Funcionário</flux:table.column>
+                                <flux:table.column>Função</flux:table.column>
+                                <flux:table.column align="end">Horas</flux:table.column>
+                                <flux:table.column align="end">Custo por hora</flux:table.column>
+                                <flux:table.column align="end">Custo total</flux:table.column>
+                            </flux:table.columns>
+                            <flux:table.rows>
+                                @foreach ($atividade->funcionarios as $funcionario)
+                                    <flux:table.row :key="$funcionario->id">
+                                        <flux:table.cell variant="strong">{{ $funcionario->nome }}</flux:table.cell>
+                                        <flux:table.cell>{{ $funcionario->funcao }}</flux:table.cell>
+                                        <flux:table.cell align="end" class="tabular-nums">{{ Number::format($funcionario->pivot->horas, maxPrecision: 2) }} h</flux:table.cell>
+                                        <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($funcionario->pivot->custo_hora) }}/h</flux:table.cell>
+                                        <flux:table.cell align="end" variant="strong" class="tabular-nums">{{ Number::currency($funcionario->pivot->custo_total) }}</flux:table.cell>
+                                    </flux:table.row>
+                                @endforeach
+                            </flux:table.rows>
+                        </flux:table>
+                    </x-slot:tabela>
+
+                    <x-slot:cartoes>
                         @foreach ($atividade->funcionarios as $funcionario)
-                            <flux:table.row :key="$funcionario->id">
-                                <flux:table.cell variant="strong">{{ $funcionario->nome }}</flux:table.cell>
-                                <flux:table.cell>{{ $funcionario->funcao }}</flux:table.cell>
-                                <flux:table.cell align="end" class="tabular-nums">{{ Number::format($funcionario->pivot->horas, maxPrecision: 2) }} h</flux:table.cell>
-                                <flux:table.cell align="end" class="tabular-nums">{{ Number::currency($funcionario->pivot->custo_hora) }}/h</flux:table.cell>
-                                <flux:table.cell align="end" variant="strong" class="tabular-nums">{{ Number::currency($funcionario->pivot->custo_total) }}</flux:table.cell>
-                            </flux:table.row>
+                            <x-cartao :titulo="$funcionario->nome" :subtitulo="$funcionario->funcao">
+                                <x-cartao.campo rotulo="Horas">{{ Number::format($funcionario->pivot->horas, maxPrecision: 2) }} h</x-cartao.campo>
+                                <x-cartao.campo rotulo="Custo por hora">{{ Number::currency($funcionario->pivot->custo_hora) }}/h</x-cartao.campo>
+                                <x-cartao.campo rotulo="Custo total" :destaque="true">{{ Number::currency($funcionario->pivot->custo_total) }}</x-cartao.campo>
+                            </x-cartao>
                         @endforeach
-                    </flux:table.rows>
-                </flux:table>
+                    </x-slot:cartoes>
+                </x-lista-responsiva>
             @endif
         </section>
 
