@@ -16,16 +16,17 @@
         <flux:input name="cultura" label="Cultura" :value="old('cultura', $talhao->cultura)" placeholder="Ex.: Soja" list="culturas-sugeridas" required />
         <flux:input name="safra" label="Safra" :value="old('safra', $talhao->safra)" placeholder="Ex.: 2025/2026" required />
     </div>
-
-    <datalist id="culturas-sugeridas">
-        @foreach (['Soja', 'Milho', 'Amendoim', 'Cana-de-açúcar', 'Café', 'Laranja', 'Feijão', 'Trigo', 'Algodão', 'Sorgo'] as $cultura)
-            <option value="{{ $cultura }}"></option>
-        @endforeach
-    </datalist>
 </x-formulario.secao>
 
 <x-formulario.secao titulo="Situação" icone="check-circle" descricao="Talhões inativos não contam na área ocupada da propriedade.">
     @include('partials.campo-situacao', ['opcoes' => \App\Enums\StatusTalhao::cases(), 'selecionada' => $talhao->status?->value])
 </x-formulario.secao>
+
+{{-- Sugestões de preenchimento (listas usadas pelos campos com "list"). --}}
+<datalist id="culturas-sugeridas">
+    @foreach (['Soja', 'Milho', 'Amendoim', 'Cana-de-açúcar', 'Café', 'Laranja', 'Feijão', 'Trigo', 'Algodão', 'Sorgo'] as $cultura)
+        <option value="{{ $cultura }}"></option>
+    @endforeach
+</datalist>
 
 <x-formulario.acoes :cancelar="$talhao->exists ? route('talhoes.show', $talhao) : route('talhoes.index')" />

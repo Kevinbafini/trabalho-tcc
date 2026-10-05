@@ -1,6 +1,6 @@
 {{--
-    Seção de formulário: título e explicação à esquerda e os campos em um
-    card à direita. Em telas menores que 1280px, o texto fica acima do card.
+    Seção de formulário em um card: cabeçalho com ícone, título e explicação,
+    e os campos logo abaixo.
 --}}
 @props([
     'titulo',
@@ -8,21 +8,23 @@
     'icone' => null,
 ])
 
-<section {{ $attributes->class('grid gap-x-10 gap-y-4 xl:grid-cols-3') }}>
-    <div class="xl:pt-2">
-        <div class="flex items-center gap-2">
-            @if ($icone)
-                <flux:icon :name="$icone" variant="mini" class="text-zinc-400 dark:text-zinc-500" />
-            @endif
-            <flux:heading size="lg">{{ $titulo }}</flux:heading>
-        </div>
-
-        @if ($descricao)
-            <flux:text class="mt-1 text-sm">{{ $descricao }}</flux:text>
+<flux:card {{ $attributes->class('min-w-0 overflow-hidden p-0!') }}>
+    <div class="flex items-start gap-3 border-b border-zinc-200 px-5 py-4 sm:px-6 dark:border-zinc-700">
+        @if ($icone)
+            <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-white/10">
+                <flux:icon :name="$icone" variant="mini" class="text-zinc-500 dark:text-zinc-300" />
+            </div>
         @endif
+
+        <div class="min-w-0">
+            <flux:heading>{{ $titulo }}</flux:heading>
+            @if ($descricao)
+                <flux:text class="mt-0.5 text-sm">{{ $descricao }}</flux:text>
+            @endif
+        </div>
     </div>
 
-    <flux:card class="min-w-0 space-y-6 xl:col-span-2">
+    <div class="space-y-6 p-5 sm:p-6">
         {{ $slot }}
-    </flux:card>
-</section>
+    </div>
+</flux:card>

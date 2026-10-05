@@ -10,16 +10,10 @@
         <flux:input name="modelo" label="Modelo (opcional)" :value="old('modelo', $maquina->modelo)" placeholder="Ex.: 6110J" />
         <flux:input type="number" min="1950" step="1" name="ano" label="Ano (opcional)" :value="old('ano', $maquina->ano)" placeholder="Ex.: 2020" />
     </div>
-
-    <datalist id="tipos-de-maquina">
-        @foreach (['Trator', 'Colhedora', 'Pulverizador autopropelido', 'Caminhão', 'Plantadeira autopropelida'] as $tipo)
-            <option value="{{ $tipo }}"></option>
-        @endforeach
-    </datalist>
 </x-formulario.secao>
 
 <x-formulario.secao titulo="Custo de uso" icone="banknotes" descricao="Custo da máquina na atividade = horas de uso × custo por hora. Inclua o custo operacional dos implementos que ela traciona.">
-    <div class="sm:max-w-xs">
+    <div class="grid items-start gap-6 sm:grid-cols-2">
         <flux:input.group label="Custo por hora" name="custo_hora" description:trailing="Atividades já registradas mantêm o valor do dia do lançamento.">
             <flux:input.group.prefix>R$</flux:input.group.prefix>
             <flux:input type="number" step="0.01" min="0" inputmode="decimal" name="custo_hora" :value="old('custo_hora', $maquina->custo_hora)" placeholder="0,00" required />
@@ -31,5 +25,12 @@
 <x-formulario.secao titulo="Situação" icone="check-circle" descricao="Somente máquinas ativas aparecem para novas atividades.">
     @include('partials.campo-situacao', ['opcoes' => \App\Enums\StatusEquipamento::cases(), 'selecionada' => $maquina->status?->value])
 </x-formulario.secao>
+
+{{-- Sugestões de preenchimento (listas usadas pelos campos com "list"). --}}
+<datalist id="tipos-de-maquina">
+    @foreach (['Trator', 'Colhedora', 'Pulverizador autopropelido', 'Caminhão', 'Plantadeira autopropelida'] as $tipo)
+        <option value="{{ $tipo }}"></option>
+    @endforeach
+</datalist>
 
 <x-formulario.acoes :cancelar="route('maquinas.index')" />

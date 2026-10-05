@@ -1,8 +1,10 @@
 <x-layouts::app title="Nova máquina">
-    <x-cabecalho-pagina titulo="Nova máquina" descricao="Informe o tipo e o custo por hora de uso." :voltar="route('maquinas.index')" />
+    <div class="mx-auto max-w-3xl">
+        <x-cabecalho-pagina titulo="Nova máquina" descricao="Informe o tipo e o custo por hora de uso." :voltar="route('maquinas.index')" />
 
-    <form method="POST" action="{{ route('maquinas.store') }}" class="max-w-5xl space-y-10">
-        @csrf
-        @include('maquinas.form')
-    </form>
+        <form method="POST" action="{{ route('maquinas.store') }}" class="space-y-6">
+            @csrf
+            @include('maquinas.form')
+        </form>
+    </div>
 </x-layouts::app>
