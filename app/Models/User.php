@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -33,6 +34,28 @@ class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * Ao excluir a conta, remove primeiro as atividades do usuário. Assim os
+     * recursos protegidos por restrictOnDelete deixam de ter histórico e o
+     * restante dos dados é removido em cascata junto com as propriedades.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            AtividadeAgricola::query()->doUsuario($user)->delete();
+        });
+    }
+
+    /**
+     * Propriedades rurais do usuário.
+     *
+     * @return HasMany<Propriedade, $this>
+     */
+    public function propriedades(): HasMany
+    {
+        return $this->hasMany(Propriedade::class);
+    }
 
     /**
      * Get the attributes that should be cast.

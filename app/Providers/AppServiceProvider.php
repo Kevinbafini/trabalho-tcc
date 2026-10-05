@@ -5,6 +5,7 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -32,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        // Números e valores monetários no padrão brasileiro (ex.: R$ 1.234,56).
+        Number::useLocale('pt_BR');
+        Number::useCurrency('BRL');
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
