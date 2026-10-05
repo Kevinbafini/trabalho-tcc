@@ -38,6 +38,16 @@ class Propriedade extends Model
     use HasFactory;
 
     /**
+     * Unidades federativas aceitas no cadastro.
+     *
+     * @var list<string>
+     */
+    public const UFS = [
+        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
+        'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
