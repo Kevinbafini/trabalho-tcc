@@ -1,5 +1,5 @@
 <section class="w-full">
-    @include('partials.settings-heading')
+    @include('partials.settings-heading', ['ajuda' => 'profile.edit'])
 
     <flux:heading level="2" class="sr-only">{{ __('Profile settings') }}</flux:heading>
 

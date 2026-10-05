@@ -1,5 +1,5 @@
 <section class="w-full">
-    @include('partials.settings-heading')
+    @include('partials.settings-heading', ['ajuda' => 'security.edit'])
 
     <flux:heading level="2" class="sr-only">{{ __('Security settings') }}</flux:heading>
 

@@ -1,4 +1,4 @@
-{{-- Título da página com ícone opcional, descrição, link "Voltar" e área de botões de ação. --}}
+{{-- Título da página com ícone opcional, botão de ajuda "?", descrição, link "Voltar" e área de botões de ação. --}}
 @props([
     'titulo',
     'descricao' => null,
@@ -22,7 +22,10 @@
             @endif
 
             <div>
-                <flux:heading size="xl" level="1">{{ $titulo }}</flux:heading>
+                <div class="flex items-center gap-2">
+                    <flux:heading size="xl" level="1">{{ $titulo }}</flux:heading>
+                    <x-ajuda-da-tela :icone="$icone" />
+                </div>
 
                 @if ($descricao)
                     <flux:text class="mt-1">{{ $descricao }}</flux:text>
