@@ -27,7 +27,7 @@
     @endif
 
     {{-- Tabela: só em telas grandes e no modo "tabela". --}}
-    <div class="hidden xl:block" x-show="modo === 'tabela'">
+    <div class="hidden rounded-xl border border-zinc-200 bg-white px-4 shadow-xs xl:block dark:border-zinc-700 dark:bg-white/5" x-show="modo === 'tabela'">
         {{ $tabela }}
     </div>
 

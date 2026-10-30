@@ -13,7 +13,10 @@
     'icone' => null,
 ])
 
-<div {{ $attributes->class('group flex min-w-0 flex-col rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm dark:border-zinc-700 dark:bg-white/5 dark:hover:border-zinc-600') }}>
+<div {{ $attributes->class('group relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-xs transition duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md hover:shadow-primary/5 dark:border-zinc-700 dark:bg-white/5 dark:hover:border-secondary/60') }}>
+    {{-- Linha nos verdes do logo, que aparece ao passar o mouse --}}
+    <span class="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-primary via-secondary to-accent-green opacity-0 transition group-hover:opacity-100" aria-hidden="true"></span>
+
     <div class="flex-1">
         <div class="flex items-start gap-3">
             @isset($avatar)

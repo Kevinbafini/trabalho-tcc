@@ -36,6 +36,10 @@
     /* Fundo do menu lateral no modo claro: verde-menta da marca. */
     --color-menu: oklch(0.955 0.022 152);
 
+    /* Fundo da área de conteúdo no modo claro: quase branco, com um toque de verde,
+       para os cards e tabelas (brancos) se destacarem. */
+    --color-fundo: oklch(0.975 0.009 155);
+
     /* Cor de destaque do Flux (botões principais, item ativo do menu, campos em foco). */
     --color-accent: var(--color-primary);
     --color-accent-content: var(--color-primary);
@@ -75,6 +79,11 @@
 /* Item ativo do menu lateral: verde da marca, mais claro no modo claro e mais intenso no escuro. */
 [data-flux-sidebar-item][data-current] {
     @apply border-primary/20 bg-primary/12 dark:border-transparent dark:bg-secondary/35;
+}
+
+/* Iniciais (avatares) nos tons da marca. */
+[data-flux-avatar] {
+    @apply bg-accent-green/15 text-secondary dark:bg-secondary/45 dark:text-white;
 }
 
 [data-flux-field]:not(ui-radio, ui-checkbox) {

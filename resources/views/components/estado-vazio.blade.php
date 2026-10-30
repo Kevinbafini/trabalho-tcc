@@ -5,7 +5,7 @@
     'icone' => 'inbox',
 ])
 
-<div {{ $attributes->class('flex flex-col items-center rounded-xl border border-dashed border-zinc-300 px-6 py-12 text-center dark:border-zinc-600') }}>
+<div {{ $attributes->class('flex flex-col items-center rounded-xl border border-dashed border-primary/25 bg-white/70 px-6 py-12 text-center dark:border-zinc-600 dark:bg-white/5') }}>
     <flux:icon :name="$icone" class="size-8 text-success dark:text-accent-content" />
     <flux:heading size="lg" class="mt-3">{{ $titulo }}</flux:heading>
 

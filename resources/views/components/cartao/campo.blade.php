@@ -8,7 +8,7 @@
 <div class="min-w-0">
     <dt class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
         @if ($icone)
-            <flux:icon :name="$icone" variant="micro" class="size-3.5 shrink-0 text-zinc-400 dark:text-zinc-500" />
+            <flux:icon :name="$icone" variant="micro" class="size-3.5 shrink-0 text-success dark:text-accent-content" />
         @endif
         {{ $rotulo }}
     </dt>
