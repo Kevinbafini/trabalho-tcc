@@ -3,15 +3,23 @@
 namespace App\Providers;
 
 use App\Http\Controllers\DevLoginController;
+use App\Mcp\Servers\SistemaAgricolaServer;
+use App\Mcp\Tools\Ferramenta;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterval;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Passport\Passport;
+use Symfony\Component\HttpFoundation\Response;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,7 +28,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // O fluxo de dispositivo do OAuth (código digitado na TV) não é usado
+        // pelos apps de IA; desligado, o Passport não registra as rotas dele.
+        // Precisa ser aqui: o Passport registra as rotas antes do boot deste provider.
+        Passport::$deviceCodeGrantEnabled = false;
     }
 
     /**
@@ -30,6 +41,33 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureDevLogin();
+        $this->configureMcp();
+    }
+
+    /**
+     * Servidor MCP (/mcp), por onde apps de IA externos (Claude, ChatGPT...)
+     * se conectam ao sistema com OAuth (Passport).
+     *
+     * O token de acesso vale 1 hora e o de renovação 30 dias, trocado a cada
+     * uso (o padrão do Passport é 1 ano, e um token vazado valeria esse tempo
+     * todo). Uma conexão esquecida por um mês expira sozinha; a que está em
+     * uso se renova sem o usuário perceber.
+     */
+    protected function configureMcp(): void
+    {
+        Passport::tokensExpireIn(CarbonInterval::hour());
+        Passport::refreshTokensExpireIn(CarbonInterval::days(30));
+
+        // Tela em que o usuário autoriza (ou nega) o app de IA a usar o sistema em seu nome.
+        Passport::authorizationView(fn (array $parametros): Response => response()->view('mcp.authorize', [
+            ...$parametros,
+            'ferramentas' => collect(SistemaAgricolaServer::FERRAMENTAS)->map(fn (string $classe): Ferramenta => app($classe)),
+        ]));
+
+        // Uma resposta do app de IA encadeia várias ferramentas, então o limite é folgado,
+        // e é por usuário: um token vazado não consegue repetir chamadas sem limite.
+        RateLimiter::for('mcp', fn (Request $request): Limit => Limit::perMinute(120)
+            ->by('mcp:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
     }
 
     /**

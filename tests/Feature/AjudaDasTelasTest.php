@@ -16,8 +16,9 @@ test('toda tela do sistema tem um texto de ajuda completo', function () {
     $telas = collect(Rotas::getRoutes()->getRoutes())
         ->filter(fn (Route $rota) => in_array('GET', $rota->methods()) && in_array('auth', $rota->gatherMiddleware()))
         ->map(fn (Route $rota) => $rota->getName())
-        // O PDF é um download e o painel do assistente é um trecho carregado dentro de outras telas.
-        ->reject(fn (?string $nome) => $nome === null || in_array($nome, ['relatorios.pdf', 'assistente.painel'], true))
+        // O PDF é um download, o painel do assistente é um trecho carregado dentro de outras telas
+        // e a autorização do OAuth é a tela de consentimento dos apps de IA externos.
+        ->reject(fn (?string $nome) => $nome === null || in_array($nome, ['relatorios.pdf', 'assistente.painel', 'passport.authorizations.authorize'], true))
         ->values();
 
     $semAjuda = $telas->reject(fn (string $tela) => Arr::has((array) trans('ajuda.'.$tela), ['titulo', 'proposito', 'exibe', 'como_usar']));

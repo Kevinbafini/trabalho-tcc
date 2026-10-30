@@ -497,6 +497,24 @@ return [
         ],
     ],
 
+    'conexoes-ia' => [
+        'edit' => [
+            'titulo' => 'Conexões de IA',
+            'proposito' => 'Liga apps de IA externos, como o Claude e o ChatGPT, ao sistema pelo protocolo MCP. Conectado, o app consulta e cadastra os seus dados usando as mesmas ferramentas do Assistente IA.',
+            'exibe' => [
+                '**Endereço do servidor MCP**, para colar no app de IA.',
+                '**Como conectar** o Claude, o ChatGPT e o Claude Code.',
+                '**Aplicativos conectados**, com a data da conexão e do último uso.',
+            ],
+            'como_usar' => [
+                'Copie o endereço e adicione-o como conector no app de IA.',
+                'O app abre o navegador: entre no sistema e clique em **Autorizar**.',
+                'Para cortar o acesso de um app, clique em **Desconectar**.',
+            ],
+            'dica' => 'Uma conexão sem uso por 30 dias expira sozinha. O app só consulta e cadastra; ele não edita nem exclui registros.',
+        ],
+    ],
+
     'appearance' => [
         'edit' => [
             'titulo' => 'Aparência',
