@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
  * @property string $uf
  * @property float $area_total
  * @property string|null $observacoes
+ * @property bool $demonstracao criada pelos dados de demonstração (Configurações → Dados de demonstração)
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -57,6 +58,7 @@ class Propriedade extends Model
     {
         return [
             'area_total' => 'float',
+            'demonstracao' => 'boolean',
         ];
     }
 

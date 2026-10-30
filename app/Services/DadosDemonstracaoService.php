@@ -21,11 +21,16 @@ use Random\Engine\Mt19937;
 use Random\Randomizer;
 
 /**
- * Gera uma propriedade fictícia completa (≈50 ha, 5 talhões, 3 culturas,
- * recursos e ≈100 atividades da safra 2025/2026) para um usuário.
+ * Dados de demonstração de um usuário: duas propriedades fictícias completas
+ * da safra 2025/2026, marcadas como "demonstracao" para que possam ser
+ * removidas sem tocar nos cadastros reais.
+ *
+ *   - Fazenda Santa Helena: 50 ha, 5 talhões de soja, milho e amendoim e ≈100 atividades;
+ *   - Sítio Boa Vista: 22 ha, 3 quadras de laranja e limão e 36 atividades.
  *
  * Cada usuário recebe seus próprios dados, permitindo que vários estudantes
  * façam o teste de usabilidade ao mesmo tempo sem interferir uns nos outros.
+ * O usuário ativa ou remove os dados em Configurações → Dados de demonstração.
  *
  * Os valores são sempre os mesmos (sorteio com semente fixa), e alguns preços
  * sobem em 01/01/2026 para demonstrar a regra de histórico: as atividades
@@ -44,6 +49,8 @@ use Random\Randomizer;
 class DadosDemonstracaoService
 {
     public const NOME_DA_PROPRIEDADE = 'Fazenda Santa Helena (demonstração)';
+
+    public const NOME_DO_SITIO = 'Sítio Boa Vista (demonstração)';
 
     private const DATA_DO_REAJUSTE = '2026-01-01';
 
@@ -64,14 +71,79 @@ class DadosDemonstracaoService
     public function __construct(private CustoAtividadeService $custos) {}
 
     /**
-     * Cria a propriedade de demonstração com todos os dados para o usuário.
+     * Indica se o usuário está com os dados de demonstração na conta.
+     */
+    public function ativo(User $usuario): bool
+    {
+        return $usuario->propriedades()->where('demonstracao', true)->exists();
+    }
+
+    /**
+     * Coloca os dados de demonstração na conta do usuário (se ainda não estiverem).
+     *
+     * @return bool true quando os dados foram criados agora
+     */
+    public function ativar(User $usuario): bool
+    {
+        if ($this->ativo($usuario)) {
+            return false;
+        }
+
+        $this->gerar($usuario);
+
+        return true;
+    }
+
+    /**
+     * Remove as propriedades de demonstração do usuário com tudo o que há nelas
+     * (talhões, recursos e atividades, inclusive o que ele alterou ou cadastrou
+     * nelas). As demais propriedades do usuário não são tocadas.
+     *
+     * @return int quantidade de propriedades removidas
+     */
+    public function remover(User $usuario): int
+    {
+        return DB::transaction(function () use ($usuario): int {
+            $propriedades = $usuario->propriedades()->where('demonstracao', true)->get();
+
+            foreach ($propriedades as $propriedade) {
+                // As atividades saem primeiro: elas protegem talhões e recursos contra exclusão.
+                $propriedade->atividades()->delete();
+                $propriedade->delete();
+            }
+
+            return $propriedades->count();
+        });
+    }
+
+    /**
+     * Números dos dados de demonstração do usuário (para a tela de configurações).
+     *
+     * @return array{propriedades: int, talhoes: int, atividades: int, custo_total: float}
+     */
+    public function resumo(User $usuario): array
+    {
+        $propriedades = $usuario->propriedades()->where('demonstracao', true)->select('id');
+
+        return [
+            'propriedades' => $usuario->propriedades()->where('demonstracao', true)->count(),
+            'talhoes' => Talhao::query()->whereIn('propriedade_id', $propriedades)->count(),
+            'atividades' => AtividadeAgricola::query()->whereIn('propriedade_id', $propriedades)->count(),
+            'custo_total' => round((float) AtividadeAgricola::query()->whereIn('propriedade_id', $propriedades)->sum('custo_total'), 2),
+        ];
+    }
+
+    /**
+     * Cria as propriedades de demonstração com todos os dados para o usuário.
+     *
+     * @return Propriedade a fazenda (a maior das duas propriedades)
      */
     public function gerar(User $usuario): Propriedade
     {
         $this->sorteio = new Randomizer(new Mt19937(2026));
 
         return DB::transaction(function () use ($usuario): Propriedade {
-            $propriedade = $usuario->propriedades()->create([
+            $fazenda = $this->criarPropriedade($usuario, [
                 'nome' => self::NOME_DA_PROPRIEDADE,
                 'proprietario' => 'João Carlos Pereira',
                 'municipio' => 'Bebedouro',
@@ -80,12 +152,113 @@ class DadosDemonstracaoService
                 'observacoes' => 'Propriedade fictícia criada para demonstração do sistema e para os testes de usabilidade. A área restante (3 ha) corresponde à sede, carreadores e área de preservação.',
             ]);
 
-            $talhoes = $this->criarTalhoes($propriedade);
-            $this->criarRecursos($propriedade);
-            $this->criarAtividades($propriedade, $talhoes);
+            $talhoes = $this->criarTalhoes($fazenda);
+            $this->criarRecursos($fazenda);
+            $this->criarAtividades(
+                $fazenda,
+                $talhoes,
+                fn (Talhao $talhao): array => [...$this->etapasDaCultura($talhao->cultura), ...$this->etapasComuns()],
+                fn () => $this->aplicarReajusteDePrecos(),
+            );
 
-            return $propriedade;
+            $this->criarSitio($usuario);
+
+            return $fazenda;
         });
+    }
+
+    /**
+     * Cria uma propriedade marcada como demonstração (a marcação não vem dos formulários).
+     *
+     * @param  array<string, mixed>  $dados
+     */
+    private function criarPropriedade(User $usuario, array $dados): Propriedade
+    {
+        $propriedade = new Propriedade($dados);
+        $propriedade->forceFill(['demonstracao' => true]);
+        $usuario->propriedades()->save($propriedade);
+
+        return $propriedade;
+    }
+
+    /**
+     * Segunda propriedade: um pomar de citros (Bebedouro é a capital nacional da laranja).
+     */
+    private function criarSitio(User $usuario): void
+    {
+        // Os recursos do sítio são outros, mesmo os de nome igual aos da fazenda.
+        $this->insumos = $this->maquinas = $this->funcionarios = $this->implementos = [];
+
+        $sitio = $this->criarPropriedade($usuario, [
+            'nome' => self::NOME_DO_SITIO,
+            'proprietario' => 'Maria Aparecida Santos',
+            'municipio' => 'Bebedouro',
+            'uf' => 'SP',
+            'area_total' => 22,
+            'observacoes' => 'Pomar fictício de citros criado para demonstração. A área restante (1,5 ha) corresponde à sede e aos carreadores.',
+        ]);
+
+        $talhoes = [];
+
+        foreach ([['Quadra 01', 8.0, 'Laranja'], ['Quadra 02', 7.5, 'Laranja'], ['Quadra 03', 5.0, 'Limão']] as [$nome, $area, $cultura]) {
+            $talhoes[$nome] = $sitio->talhoes()->create([
+                'nome' => $nome, 'area' => $area, 'cultura' => $cultura, 'safra' => '2025/2026', 'status' => StatusTalhao::EmCultivo,
+            ]);
+        }
+
+        foreach ([
+            ['Pedro Henrique Costa', 'Tratorista', 27.00],
+            ['Sebastião Ribeiro', 'Trabalhador rural', 19.50],
+            ['Ana Paula Martins', 'Técnica agrícola', 42.00],
+        ] as [$nome, $funcao, $custoHora]) {
+            $this->funcionarios[$nome] = $sitio->funcionarios()->create([
+                'nome' => $nome, 'funcao' => $funcao, 'custo_hora' => $custoHora, 'status' => StatusRecurso::Ativo,
+            ]);
+        }
+
+        foreach ([
+            ['Trator Valtra A950', 'Trator', 'A950', 2017, 140.00],
+            ['Trator Massey Ferguson 275', 'Trator', '275', 2012, 110.00],
+        ] as [$nome, $tipo, $modelo, $ano, $custoHora]) {
+            $this->maquinas[$nome] = $sitio->maquinas()->create([
+                'nome' => $nome, 'tipo' => $tipo, 'modelo' => $modelo, 'ano' => $ano, 'custo_hora' => $custoHora, 'status' => StatusEquipamento::Ativo,
+            ]);
+        }
+
+        foreach ([
+            ['Atomizador Jacto Arbus 2000', 'Pulverização'],
+            ['Roçadeira ecológica', 'Roçada'],
+            ['Adubadeira centrífuga', 'Adubação'],
+            ['Carreta agrícola', 'Transporte'],
+        ] as [$nome, $tipo]) {
+            $this->implementos[$nome] = $sitio->implementos()->create([
+                'nome' => $nome, 'tipo' => $tipo, 'status' => StatusEquipamento::Ativo,
+            ]);
+        }
+
+        foreach ([
+            ['Fertilizante NPK 20-05-20', CategoriaInsumo::Fertilizante, UnidadeMedida::Quilograma, 4.10, 1500],
+            ['Calcário dolomítico', CategoriaInsumo::Corretivo, UnidadeMedida::Tonelada, 185.00, 6],
+            ['Abamectina', CategoriaInsumo::Inseticida, UnidadeMedida::Litro, 68.00, 10],
+            ['Imidacloprido', CategoriaInsumo::Inseticida, UnidadeMedida::Litro, 120.00, 8],
+            ['Oxicloreto de cobre', CategoriaInsumo::Fungicida, UnidadeMedida::Quilograma, 42.00, 40],
+            ['Glifosato', CategoriaInsumo::Herbicida, UnidadeMedida::Litro, 28.00, 60],
+            ['Óleo mineral (adjuvante)', CategoriaInsumo::Outro, UnidadeMedida::Litro, 18.00, 40],
+        ] as [$nome, $categoria, $unidade, $valor, $estoque]) {
+            $this->insumos[$nome] = $sitio->insumos()->create([
+                'nome' => $nome, 'categoria' => $categoria, 'unidade' => $unidade, 'valor_unitario' => $valor, 'quantidade_estoque' => $estoque, 'status' => StatusRecurso::Ativo,
+            ]);
+        }
+
+        $this->criarAtividades(
+            $sitio,
+            $talhoes,
+            fn (Talhao $talhao): array => $this->etapasDoPomar($talhao->cultura),
+            function (): void {
+                $this->insumos['Fertilizante NPK 20-05-20']->update(['valor_unitario' => 4.45]);
+                $this->insumos['Imidacloprido']->update(['valor_unitario' => 128.00]);
+            },
+        );
     }
 
     /**
@@ -188,13 +361,15 @@ class DadosDemonstracaoService
      * (o mesmo cálculo das atividades cadastradas pela tela).
      *
      * @param  array<string, Talhao>  $talhoes
+     * @param  callable(Talhao): list<Etapa>  $etapasDoTalhao
+     * @param  callable(): void  $reajuste  aplicado antes da primeira atividade de 2026
      */
-    private function criarAtividades(Propriedade $propriedade, array $talhoes): void
+    private function criarAtividades(Propriedade $propriedade, array $talhoes, callable $etapasDoTalhao, callable $reajuste): void
     {
         $planejadas = [];
 
         foreach ($talhoes as $talhao) {
-            foreach ([...$this->etapasDaCultura($talhao->cultura), ...$this->etapasComuns()] as $etapa) {
+            foreach ($etapasDoTalhao($talhao) as $etapa) {
                 $planejadas[] = ['talhao' => $talhao, 'etapa' => $etapa];
             }
         }
@@ -205,7 +380,7 @@ class DadosDemonstracaoService
 
         foreach ($planejadas as ['talhao' => $talhao, 'etapa' => $etapa]) {
             if (! $reajusteAplicado && $etapa['data'] >= self::DATA_DO_REAJUSTE) {
-                $this->aplicarReajusteDePrecos();
+                $reajuste();
                 $reajusteAplicado = true;
             }
 
@@ -319,6 +494,34 @@ class DadosDemonstracaoService
                 ['data' => '2026-03-15', 'tipo' => TipoOperacao::Colheita, 'descricao' => 'Recolhimento do amendoim', 'maquinas' => ['Colhedora John Deere S540' => 0.7], 'funcionarios' => ['Carlos Henrique Souza' => 0.7, 'Luiz Fernando Alves' => 0.3]],
             ],
         };
+    }
+
+    /**
+     * Etapas do pomar de citros na safra 2025/2026 (doses e horas por hectare).
+     * O limão é colhido antes da laranja.
+     *
+     * @return list<Etapa>
+     */
+    private function etapasDoPomar(string $cultura): array
+    {
+        $atomizacao = ['tipo' => TipoOperacao::Pulverizacao, 'maquinas' => ['Trator Valtra A950' => 0.6], 'funcionarios' => ['Pedro Henrique Costa' => 0.6], 'implementos' => ['Atomizador Jacto Arbus 2000']];
+        $rocada = ['tipo' => TipoOperacao::TratosCulturais, 'descricao' => 'Roçada nas entrelinhas', 'maquinas' => ['Trator Massey Ferguson 275' => 0.7], 'funcionarios' => ['Pedro Henrique Costa' => 0.7], 'implementos' => ['Roçadeira ecológica']];
+        $adubacao = ['tipo' => TipoOperacao::Adubacao, 'maquinas' => ['Trator Massey Ferguson 275' => 0.5], 'funcionarios' => ['Pedro Henrique Costa' => 0.5], 'implementos' => ['Adubadeira centrífuga']];
+
+        return [
+            [...$adubacao, 'data' => '2025-08-20', 'descricao' => 'Calagem', 'insumos' => ['Calcário dolomítico' => 1.5]],
+            [...$adubacao, 'data' => '2025-09-16', 'descricao' => 'Adubação de primavera', 'insumos' => ['Fertilizante NPK 20-05-20' => 400]],
+            [...$atomizacao, 'data' => '2025-10-08', 'descricao' => 'Controle do psilídeo (greening)', 'insumos' => ['Imidacloprido' => 0.3, 'Óleo mineral (adjuvante)' => 1.0]],
+            [...$rocada, 'data' => '2025-11-04'],
+            [...$atomizacao, 'data' => '2025-11-26', 'descricao' => 'Controle do ácaro da leprose', 'insumos' => ['Abamectina' => 0.4, 'Óleo mineral (adjuvante)' => 1.0]],
+            [...$adubacao, 'data' => '2025-12-16', 'descricao' => 'Adubação de verão', 'insumos' => ['Fertilizante NPK 20-05-20' => 300]],
+            [...$atomizacao, 'data' => '2026-01-21', 'descricao' => 'Fungicida cúprico contra o cancro cítrico', 'insumos' => ['Oxicloreto de cobre' => 2.0]],
+            [...$rocada, 'data' => '2026-02-19'],
+            [...$atomizacao, 'data' => '2026-03-11', 'descricao' => 'Controle do psilídeo (greening)', 'insumos' => ['Imidacloprido' => 0.3, 'Óleo mineral (adjuvante)' => 1.0]],
+            ['data' => '2026-04-08', 'tipo' => TipoOperacao::TratosCulturais, 'descricao' => 'Inspeção de greening e erradicação de plantas doentes', 'funcionarios' => ['Ana Paula Martins' => 0.3, 'Sebastião Ribeiro' => 0.6]],
+            ['data' => $cultura === 'Limão' ? '2026-03-25' : '2026-05-20', 'tipo' => TipoOperacao::Colheita, 'descricao' => 'Colheita manual e transporte até o carreador', 'maquinas' => ['Trator Massey Ferguson 275' => 1.0], 'funcionarios' => ['Sebastião Ribeiro' => 6.0, 'Pedro Henrique Costa' => 1.0], 'implementos' => ['Carreta agrícola']],
+            ['data' => '2026-06-24', 'tipo' => TipoOperacao::Pulverizacao, 'descricao' => 'Herbicida na linha de plantio', 'insumos' => ['Glifosato' => 2.0], 'maquinas' => ['Trator Valtra A950' => 0.4], 'funcionarios' => ['Pedro Henrique Costa' => 0.4], 'implementos' => ['Atomizador Jacto Arbus 2000']],
+        ];
     }
 
     /**

@@ -47,9 +47,10 @@ test('as telas de detalhes e edição abrem com os dados de demonstração', fun
 test('o dashboard mostra os indicadores e os dados dos gráficos', function () {
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertSee(['Área total', '50,00 ha', 'Composição dos custos', 'Custo por hectare dos talhões', 'Últimas atividades'])
-        ->assertViewHas('quantidadeTalhoes', 5)
-        ->assertViewHas('graficoCustoPorHectare', fn (array $grafico) => count($grafico['rotulos']) === 5);
+        // Fazenda (50 ha, 5 talhões) + sítio (22 ha, 3 quadras) da demonstração.
+        ->assertSee(['Área total', '72,00 ha', 'Composição dos custos', 'Custo por hectare dos talhões', 'Últimas atividades'])
+        ->assertViewHas('quantidadeTalhoes', 8)
+        ->assertViewHas('graficoCustoPorHectare', fn (array $grafico) => count($grafico['rotulos']) === 8);
 });
 
 test('usuário sem propriedade é orientado a cadastrar uma antes dos demais cadastros', function (string $rota) {

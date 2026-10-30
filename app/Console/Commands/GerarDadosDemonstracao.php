@@ -11,14 +11,15 @@ use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 
 /**
- * Prepara a propriedade de demonstração para um usuário (existente ou novo).
+ * Prepara os dados de demonstração para um usuário (existente ou novo).
+ * O próprio usuário também pode ativá-los ou removê-los em Configurações → Dados de demonstração.
  *
  * Exemplos:
  *   php artisan demo:gerar aluno01@fatec.sp.gov.br --nome="Aluno 01" --senha=sus2026
  *   php artisan demo:gerar admin@admin.com
  */
 #[Signature('demo:gerar {email : E-mail do usuário} {--nome= : Nome, caso o usuário precise ser criado} {--senha= : Senha, caso o usuário precise ser criado}')]
-#[Description('Cria a propriedade de demonstração (talhões, recursos e atividades) para um usuário')]
+#[Description('Cria os dados de demonstração (propriedades, talhões, recursos e atividades) para um usuário')]
 class GerarDadosDemonstracao extends Command
 {
     /**
@@ -41,21 +42,21 @@ class GerarDadosDemonstracao extends Command
             $this->components->info("Usuário criado: {$email} (senha: {$senha})");
         }
 
-        if ($usuario->propriedades()->where('nome', DadosDemonstracaoService::NOME_DA_PROPRIEDADE)->exists()) {
-            $this->components->warn('Este usuário já possui a propriedade de demonstração. Nada foi alterado.');
+        if (! $demonstracao->ativar($usuario)) {
+            $this->components->warn('Este usuário já possui os dados de demonstração. Nada foi alterado.');
 
             return self::SUCCESS;
         }
 
-        $propriedade = $demonstracao->gerar($usuario);
+        $resumo = $demonstracao->resumo($usuario);
 
         $this->components->info(sprintf(
-            '"%s" criada para %s: %d talhões, %d atividades, custo total de %s.',
-            $propriedade->nome,
+            'Dados de demonstração criados para %s: %d propriedades, %d talhões, %d atividades, custo total de %s.',
             $usuario->email,
-            $propriedade->talhoes()->count(),
-            $propriedade->atividades()->count(),
-            Number::currency(floatval($propriedade->atividades()->sum('custo_total'))),
+            $resumo['propriedades'],
+            $resumo['talhoes'],
+            $resumo['atividades'],
+            Number::currency($resumo['custo_total']),
         ));
 
         return self::SUCCESS;

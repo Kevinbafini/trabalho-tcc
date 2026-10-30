@@ -515,6 +515,24 @@ return [
         ],
     ],
 
+    'dados-demonstracao' => [
+        'edit' => [
+            'titulo' => 'Dados de demonstração',
+            'proposito' => 'Coloca na sua conta duas propriedades fictícias com uma safra inteira de atividades, para você explorar o sistema já populado. Quando não precisar mais, basta removê-las.',
+            'exibe' => [
+                'A **situação**: se os dados de demonstração estão ativos ou desativados na sua conta.',
+                'Com os dados ativos, o **resumo**: propriedades, talhões, atividades e custo total.',
+                'Com os dados desativados, **o que será criado**: a Fazenda Santa Helena e o Sítio Boa Vista.',
+            ],
+            'como_usar' => [
+                'Clique em **Ativar dados de demonstração** e aguarde alguns segundos.',
+                'Explore o Dashboard, as listas, os relatórios e o assistente com os dados de exemplo.',
+                'Para voltar a ver só os seus cadastros, clique em **Remover dados de demonstração** e confirme.',
+            ],
+            'dica' => 'Os seus próprios cadastros nunca são alterados. Ao remover, saem apenas as propriedades marcadas com “(demonstração)”, inclusive o que você cadastrou dentro delas.',
+        ],
+    ],
+
     'appearance' => [
         'edit' => [
             'titulo' => 'Aparência',

@@ -2,6 +2,7 @@
 
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\ConexoesIa;
+use App\Livewire\Settings\DadosDemonstracao;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\Security;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('settings/appearance', Appearance::class)->name('appearance.edit');
     Route::livewire('settings/conexoes-ia', ConexoesIa::class)->name('conexoes-ia.edit');
+    Route::livewire('settings/dados-demonstracao', DadosDemonstracao::class)->name('dados-demonstracao.edit');
 
     Route::livewire('settings/security', Security::class)
         ->middleware([

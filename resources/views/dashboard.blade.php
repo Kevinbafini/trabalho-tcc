@@ -3,7 +3,10 @@
 
     @if ($propriedades->isEmpty())
         <x-estado-vazio icone="home-modern" titulo="Bem-vindo! Comece cadastrando sua propriedade" descricao="O fluxo do sistema é: propriedade → talhões → recursos (funcionários, máquinas, implementos e insumos) → atividades agrícolas. Os indicadores de custos aparecem aqui automaticamente.">
-            <flux:button :href="route('propriedades.create')" variant="primary" icon="plus" wire:navigate>Cadastrar propriedade</flux:button>
+            <div class="flex flex-col items-center justify-center gap-2 sm:flex-row">
+                <flux:button :href="route('propriedades.create')" variant="primary" icon="plus" wire:navigate>Cadastrar propriedade</flux:button>
+                <flux:button :href="route('dados-demonstracao.edit')" icon="sparkles" wire:navigate>Explorar com dados de demonstração</flux:button>
+            </div>
         </x-estado-vazio>
     @else
         <x-filtro-propriedade :propriedades="$propriedades" :selecionada="$propriedadeSelecionada" />
