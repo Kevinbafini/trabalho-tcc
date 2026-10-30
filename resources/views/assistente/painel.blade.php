@@ -1,6 +1,6 @@
 {{-- Conteúdo do painel lateral do assistente (carregado ao abrir o painel, em qualquer tela). --}}
 <div class="flex items-center gap-3 border-b border-zinc-200 py-3 ps-4 pe-12 dark:border-white/10">
-    <div class="flex size-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 dark:border-white/15 dark:bg-white/5 dark:text-zinc-200" aria-hidden="true">
+    <div class="flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/15 bg-primary/8 text-primary dark:border-white/10 dark:bg-secondary/30 dark:text-accent-content" aria-hidden="true">
         <flux:icon.sparkles variant="mini" />
     </div>
 

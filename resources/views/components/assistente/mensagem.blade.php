@@ -9,7 +9,7 @@
 
 @if ($mensagem->papel === \App\Enums\PapelMensagem::Assistente)
     <article class="group flex items-start gap-3 sm:gap-4" x-data="{ copiado: false }">
-        <div class="flex size-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 dark:border-white/15 dark:bg-white/5 dark:text-zinc-200" aria-hidden="true">
+        <div class="flex size-8 shrink-0 items-center justify-center rounded-full border border-primary/15 bg-primary/8 text-primary dark:border-white/10 dark:bg-secondary/30 dark:text-accent-content" aria-hidden="true">
             <flux:icon.sparkles variant="micro" />
         </div>
 
@@ -52,7 +52,7 @@
     </article>
 @else
     <article class="flex justify-end">
-        <div class="max-w-[85%] rounded-3xl bg-zinc-100 px-5 py-2.5 text-[15px] leading-7 break-words text-zinc-900 sm:max-w-[75%] dark:bg-white/10 dark:text-white">
+        <div class="max-w-[85%] rounded-3xl bg-primary/8 px-5 py-2.5 text-[15px] leading-7 break-words text-zinc-900 sm:max-w-[75%] dark:bg-secondary/35 dark:text-white">
             {!! $mensagem->conteudo_html !!}
         </div>
     </article>

@@ -14,7 +14,7 @@
         type="button"
         x-on:click="alterar('tabela')"
         x-bind:aria-pressed="modo === 'tabela'"
-        class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm text-zinc-500 hover:text-zinc-800 aria-pressed:bg-zinc-100 aria-pressed:text-zinc-900 dark:text-zinc-400 dark:hover:text-white dark:aria-pressed:bg-white/10 dark:aria-pressed:text-white"
+        class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm text-zinc-500 hover:text-zinc-800 aria-pressed:bg-primary/10 aria-pressed:text-primary dark:text-zinc-400 dark:hover:text-white dark:aria-pressed:bg-secondary/40 dark:aria-pressed:text-white"
     >
         <flux:icon.table-cells variant="micro" />
         Tabela
@@ -24,7 +24,7 @@
         type="button"
         x-on:click="alterar('cartoes')"
         x-bind:aria-pressed="modo === 'cartoes'"
-        class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm text-zinc-500 hover:text-zinc-800 aria-pressed:bg-zinc-100 aria-pressed:text-zinc-900 dark:text-zinc-400 dark:hover:text-white dark:aria-pressed:bg-white/10 dark:aria-pressed:text-white"
+        class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm text-zinc-500 hover:text-zinc-800 aria-pressed:bg-primary/10 aria-pressed:text-primary dark:text-zinc-400 dark:hover:text-white dark:aria-pressed:bg-secondary/40 dark:aria-pressed:text-white"
     >
         <flux:icon.squares-2x2 variant="micro" />
         Cards

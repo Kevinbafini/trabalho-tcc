@@ -1,6 +1,6 @@
 {{-- Início de conversa no painel lateral: o que o assistente faz e sugestões de pedidos (um clique envia). --}}
 <div class="mx-auto flex max-w-lg flex-col items-center py-6 text-center">
-    <div class="flex size-11 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 dark:border-white/15 dark:bg-white/5 dark:text-zinc-200">
+    <div class="flex size-11 items-center justify-center rounded-full border border-primary/15 bg-primary/8 text-primary dark:border-white/10 dark:bg-secondary/30 dark:text-accent-content">
         <flux:icon.sparkles />
     </div>
 

@@ -19,7 +19,7 @@
             @isset($avatar)
                 {{ $avatar }}
             @elseif ($icone)
-                <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 dark:bg-white/10 dark:text-zinc-300" aria-hidden="true">
+                <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary dark:bg-secondary/30 dark:text-accent-content" aria-hidden="true">
                     <flux:icon :name="$icone" variant="mini" />
                 </span>
             @endisset

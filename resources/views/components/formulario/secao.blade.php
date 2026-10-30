@@ -11,8 +11,8 @@
 <flux:card {{ $attributes->class('min-w-0 overflow-hidden p-0!') }}>
     <div class="flex items-start gap-3 border-b border-zinc-200 px-5 py-4 sm:px-6 dark:border-zinc-700">
         @if ($icone)
-            <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-white/10">
-                <flux:icon :name="$icone" variant="mini" class="text-zinc-500 dark:text-zinc-300" />
+            <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/8 dark:bg-secondary/30">
+                <flux:icon :name="$icone" variant="mini" class="text-primary dark:text-accent-content" />
             </div>
         @endif
 

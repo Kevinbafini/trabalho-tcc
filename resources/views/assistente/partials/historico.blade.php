@@ -23,7 +23,7 @@
                 title="{{ $item->titulo }}"
                 @class([
                     'block truncate rounded-lg px-3 py-2 text-sm transition',
-                    'bg-zinc-200/70 font-medium text-zinc-900 dark:bg-white/10 dark:text-white' => $conversaAtual?->id === $item->id,
+                    'bg-primary/10 font-medium text-primary dark:bg-secondary/35 dark:text-white' => $conversaAtual?->id === $item->id,
                     'text-zinc-700 hover:bg-zinc-200/50 dark:text-zinc-300 dark:hover:bg-white/5' => $conversaAtual?->id !== $item->id,
                 ])
                 @if ($conversaAtual?->id === $item->id) aria-current="page" @endif

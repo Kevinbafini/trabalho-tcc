@@ -16,8 +16,8 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-4">
             @if ($icone)
-                <div class="hidden size-12 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white shadow-xs sm:flex dark:border-white/10 dark:bg-white/5">
-                    <flux:icon :name="$icone" class="size-6 text-zinc-600 dark:text-zinc-300" />
+                <div class="hidden size-12 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/8 sm:flex dark:border-white/10 dark:bg-secondary/30">
+                    <flux:icon :name="$icone" class="size-6 text-primary dark:text-accent-content" />
                 </div>
             @endif
 

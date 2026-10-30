@@ -42,14 +42,15 @@ const rotulosNasBarras = {
 
 /**
  * Cores por tema. As três cores das séries (insumos, maquinário, mão de obra)
- * foram validadas para daltonismo contra a superfície dos cards.
+ * foram validadas para daltonismo contra a superfície dos cards. A superfície
+ * e o texto seguem os cinzas esverdeados do tema (resources/css/app.css).
  */
 function cores() {
     const escuro = document.documentElement.classList.contains('dark');
 
     return escuro
-        ? { series: ['#3987e5', '#d95926', '#199e70'], superficie: '#3c3c3c', texto: '#d4d4d4', grade: 'rgba(255, 255, 255, 0.08)' }
-        : { series: ['#2a78d6', '#eb6834', '#1baf7a'], superficie: '#ffffff', texto: '#525252', grade: 'rgba(0, 0, 0, 0.06)' };
+        ? { series: ['#3987e5', '#d95926', '#199e70'], superficie: '#313f37', texto: '#ccd8d0', grade: 'rgba(255, 255, 255, 0.08)' }
+        : { series: ['#2a78d6', '#eb6834', '#1baf7a'], superficie: '#ffffff', texto: '#48564d', grade: 'rgba(10, 78, 53, 0.08)' };
 }
 
 function opcoesDeEixo(paleta) {

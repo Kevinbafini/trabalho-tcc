@@ -6,7 +6,7 @@
 ])
 
 <div {{ $attributes->class('flex flex-col items-center rounded-xl border border-dashed border-zinc-300 px-6 py-12 text-center dark:border-zinc-600') }}>
-    <flux:icon :name="$icone" class="size-8 text-zinc-400" />
+    <flux:icon :name="$icone" class="size-8 text-success dark:text-accent-content" />
     <flux:heading size="lg" class="mt-3">{{ $titulo }}</flux:heading>
 
     @if ($descricao)
