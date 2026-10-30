@@ -15,7 +15,8 @@ use App\Http\Controllers\RelatorioPdfController;
 use App\Http\Controllers\TalhaoController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', 'dashboard')->name('home');
+// Página pública de apresentação do sistema.
+Route::view('/', 'welcome')->name('home');
 
 // Login rápido de desenvolvimento (responde 404 fora do ambiente local).
 Route::post('dev/login', DevLoginController::class)->middleware('guest')->name('dev.login');
