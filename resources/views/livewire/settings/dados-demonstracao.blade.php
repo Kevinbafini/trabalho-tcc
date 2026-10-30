@@ -34,7 +34,7 @@
             </div>
 
             @if ($ativo)
-                <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <dl class="grid grid-cols-2 gap-3">
                     @foreach ([
                         ['Propriedades', Number::format($this->resumo['propriedades'])],
                         ['Talhões', Number::format($this->resumo['talhoes'])],
@@ -48,9 +48,11 @@
                     @endforeach
                 </dl>
 
-                <flux:modal.trigger name="remover-demonstracao">
-                    <flux:button variant="danger" icon="trash">Remover dados de demonstração</flux:button>
-                </flux:modal.trigger>
+                <div>
+                    <flux:modal.trigger name="remover-demonstracao">
+                        <flux:button variant="danger" icon="trash">Remover dados de demonstração</flux:button>
+                    </flux:modal.trigger>
+                </div>
             @else
                 <div>
                     <flux:heading size="sm">O que será criado</flux:heading>
