@@ -26,14 +26,14 @@ class GerarDadosDemonstracao extends Command
      */
     public function handle(DadosDemonstracaoService $demonstracao): int
     {
-        $email = Str::lower($this->argument('email'));
+        $email = Str::lower($this->texto($this->argument('email')) ?? '');
         $usuario = User::query()->where('email', $email)->first();
 
         if ($usuario === null) {
-            $senha = $this->option('senha') ?: Str::password(10, symbols: false);
+            $senha = $this->texto($this->option('senha')) ?? Str::password(10, symbols: false);
 
             $usuario = User::query()->create([
-                'name' => $this->option('nome') ?: 'Usuário de demonstração',
+                'name' => $this->texto($this->option('nome')) ?? 'Usuário de demonstração',
                 'email' => $email,
                 'password' => $senha,
             ]);
@@ -59,5 +59,13 @@ class GerarDadosDemonstracao extends Command
         ));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Valor de um argumento ou opção do comando, ou null quando não foi informado.
+     */
+    private function texto(mixed $valor): ?string
+    {
+        return is_string($valor) && $valor !== '' ? $valor : null;
     }
 }

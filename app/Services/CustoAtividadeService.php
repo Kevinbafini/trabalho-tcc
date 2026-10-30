@@ -109,6 +109,45 @@ class CustoAtividadeService
     }
 
     /**
+     * Calcula os custos de uma nova atividade SEM gravar nada. É a prévia que o
+     * assistente de IA mostra ao usuário antes de pedir a confirmação; usa os
+     * mesmos cálculos de salvar(), com os valores atuais dos cadastros.
+     *
+     * @param  DadosAtividade  $dados
+     * @return array{
+     *     insumos: array<int, ItemCalculado>,
+     *     maquinas: array<int, ItemCalculado>,
+     *     funcionarios: array<int, ItemCalculado>,
+     *     custo_insumos: float,
+     *     custo_maquinas: float,
+     *     custo_mao_obra: float,
+     *     custo_total: float,
+     * }
+     */
+    public function calcularPrevia(Propriedade $propriedade, array $dados): array
+    {
+        $atividade = new AtividadeAgricola;
+
+        $insumos = $this->calcularInsumos($atividade, $propriedade, $dados['insumos']);
+        $maquinas = $this->calcularMaquinas($atividade, $propriedade, $dados['maquinas']);
+        $funcionarios = $this->calcularMaoDeObra($atividade, $propriedade, $dados['funcionarios']);
+
+        $custoInsumos = $this->somar($insumos);
+        $custoMaquinas = $this->somar($maquinas);
+        $custoMaoDeObra = $this->somar($funcionarios);
+
+        return [
+            'insumos' => $insumos,
+            'maquinas' => $maquinas,
+            'funcionarios' => $funcionarios,
+            'custo_insumos' => $custoInsumos,
+            'custo_maquinas' => $custoMaquinas,
+            'custo_mao_obra' => $custoMaoDeObra,
+            'custo_total' => round($custoInsumos + $custoMaquinas + $custoMaoDeObra, 2),
+        ];
+    }
+
+    /**
      * Custo de um item: quantidade (ou horas) × valor unitário (ou valor/hora),
      * arredondado em centavos.
      */
