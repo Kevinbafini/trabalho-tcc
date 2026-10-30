@@ -5,12 +5,13 @@
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
-        <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
+        <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-5" x-data="{ enviando: false }" x-on:submit="enviando = true">
             @csrf
             <!-- Name -->
             <flux:input
                 name="name"
                 :label="__('Name')"
+                icon="user"
                 :value="old('name')"
                 type="text"
                 required
@@ -23,6 +24,7 @@
             <flux:input
                 name="email"
                 :label="__('Email address')"
+                icon="envelope"
                 :value="old('email')"
                 type="email"
                 required
@@ -34,6 +36,7 @@
             <flux:input
                 name="password"
                 :label="__('Password')"
+                icon="lock-closed"
                 type="password"
                 required
                 autocomplete="new-password"
@@ -46,6 +49,7 @@
             <flux:input
                 name="password_confirmation"
                 :label="__('Confirm password')"
+                icon="lock-closed"
                 type="password"
                 required
                 autocomplete="new-password"
@@ -55,7 +59,7 @@
             />
 
             <div class="flex items-center justify-end">
-                <flux:button type="submit" variant="primary" class="w-full" data-test="register-user-button">
+                <flux:button type="submit" variant="primary" class="mt-1 w-full" x-bind:disabled="enviando" data-test="register-user-button">
                     {{ __('Create account') }}
                 </flux:button>
             </div>
