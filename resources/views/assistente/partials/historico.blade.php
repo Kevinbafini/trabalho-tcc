@@ -1,25 +1,37 @@
-{{-- Histórico de conversas da tela cheia (a selecionada fica destacada). --}}
-@forelse ($conversas as $item)
-    <a
-        href="{{ route('assistente.index', ['conversa' => $item->id]) }}"
-        wire:navigate
-        @class([
-            'block rounded-lg px-3 py-2.5 transition',
-            'bg-zinc-100 dark:bg-white/10' => $conversaAtual?->id === $item->id,
-            'hover:bg-zinc-50 dark:hover:bg-white/5' => $conversaAtual?->id !== $item->id,
-        ])
-        @if ($conversaAtual?->id === $item->id) aria-current="page" @endif
-    >
-        <span class="block truncate text-sm font-medium text-zinc-800 dark:text-zinc-100">{{ $item->titulo }}</span>
-        <span class="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
-            <span>{{ $item->provedor->rotulo() }}</span>
-            <span aria-hidden="true">·</span>
-            <span>{{ $item->ultima_mensagem_em === null || abs($item->ultima_mensagem_em->diffInSeconds()) < 60 ? 'agora' : $item->ultima_mensagem_em->diffForHumans() }}</span>
-        </span>
-    </a>
-@empty
-    <div class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-zinc-200 px-4 py-8 text-center dark:border-white/10">
-        <flux:icon.chat-bubble-left-right class="text-zinc-400" />
-        <flux:text size="sm">Suas conversas aparecerão aqui.</flux:text>
+{{-- Histórico de conversas, agrupado por data (a conversa aberta fica destacada). --}}
+@php
+    $grupos = $conversas->groupBy(function (\App\Models\Conversa $item): string {
+        $data = $item->ultima_mensagem_em ?? $item->created_at;
+
+        return match (true) {
+            $data === null, $data->isToday() => 'Hoje',
+            $data->isYesterday() => 'Ontem',
+            $data->greaterThan(now()->subDays(7)) => 'Últimos 7 dias',
+            default => 'Mais antigas',
+        };
+    });
+@endphp
+
+@forelse ($grupos as $grupo => $itens)
+    <div class="mb-4">
+        <p class="px-3 pt-2 pb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{{ $grupo }}</p>
+
+        @foreach ($itens as $item)
+            <a
+                href="{{ route('assistente.index', ['conversa' => $item->id]) }}"
+                wire:navigate
+                title="{{ $item->titulo }}"
+                @class([
+                    'block truncate rounded-lg px-3 py-2 text-sm transition',
+                    'bg-zinc-200/70 font-medium text-zinc-900 dark:bg-white/10 dark:text-white' => $conversaAtual?->id === $item->id,
+                    'text-zinc-700 hover:bg-zinc-200/50 dark:text-zinc-300 dark:hover:bg-white/5' => $conversaAtual?->id !== $item->id,
+                ])
+                @if ($conversaAtual?->id === $item->id) aria-current="page" @endif
+            >
+                {{ $item->titulo }}
+            </a>
+        @endforeach
     </div>
+@empty
+    <p class="px-3 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">Suas conversas aparecerão aqui.</p>
 @endforelse

@@ -8,10 +8,12 @@
  *
  * Sem JavaScript, o formulário do chat continua funcionando com envio normal.
  */
-window.chatDoAssistente = ({ conversaId = null, provedor, restantes = 0, atualizarEndereco = false }) => ({
+window.chatDoAssistente = ({ conversaId = null, provedor, restantes = 0, vazia = false, telaCheia = false }) => ({
     conversaId,
     provedor,
     restantes,
+    // Na tela cheia, uma conversa vazia mostra o campo de mensagem no centro da tela.
+    vazia,
     mensagem: '',
     pendente: '',
     enviando: false,
@@ -40,6 +42,7 @@ window.chatDoAssistente = ({ conversaId = null, provedor, restantes = 0, atualiz
         this.pendente = texto;
         this.mensagem = '';
         this.enviando = true;
+        this.vazia = false;
         this.$nextTick(() => {
             this.ajustarAltura();
             this.rolarParaOFim();
@@ -56,6 +59,7 @@ window.chatDoAssistente = ({ conversaId = null, provedor, restantes = 0, atualiz
             if (resposta.status === 422) {
                 this.erro = Object.values(json?.errors ?? {})[0]?.[0] ?? 'Confira a mensagem e tente de novo.';
                 this.mensagem = texto;
+                this.vazia = telaCheia && this.conversaId === null;
 
                 return;
             }
@@ -65,6 +69,7 @@ window.chatDoAssistente = ({ conversaId = null, provedor, restantes = 0, atualiz
                     ? 'Sua sessão expirou. Recarregue a página e tente de novo.'
                     : 'Não foi possível enviar a mensagem. Tente de novo em alguns instantes.';
                 this.mensagem = texto;
+                this.vazia = telaCheia && this.conversaId === null;
 
                 return;
             }
@@ -72,13 +77,14 @@ window.chatDoAssistente = ({ conversaId = null, provedor, restantes = 0, atualiz
             this.conversaId = json.conversa_id;
             this.restantes = json.restantes;
             this.erro = json.erro;
+            this.vazia = telaCheia && json.conversa_id === null;
             this.$refs.mensagens.innerHTML = json.mensagens;
 
             if (json.historico !== null) {
                 window.dispatchEvent(new CustomEvent('assistente-historico', { detail: { html: json.historico } }));
             }
 
-            if (atualizarEndereco && json.url) {
+            if (telaCheia && json.url) {
                 window.history.replaceState(window.history.state, '', json.url);
             }
         } catch {

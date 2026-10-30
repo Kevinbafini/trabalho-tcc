@@ -1,54 +1,66 @@
-<x-layouts::app title="Assistente IA">
-    <x-cabecalho-pagina
-        titulo="Assistente IA"
-        icone="sparkles"
-        descricao="Pergunte sobre os custos ou peça para cadastrar dados. Nada é salvo sem a sua confirmação."
+{{--
+    Assistente IA em tela cheia, no estilo dos chats de IA: conversas à
+    esquerda (recolhível; no celular abre como gaveta) e o chat ocupando o resto.
+--}}
+<x-layouts::app title="Assistente IA" tela-cheia>
+    <div
+        class="flex h-[calc(100dvh-3.5rem)] lg:h-dvh"
+        x-data="{
+            conversasAbertas: (() => { try { return localStorage.getItem('assistente-conversas') !== 'fechadas' } catch { return true } })(),
+            alternarConversas() {
+                this.conversasAbertas = ! this.conversasAbertas;
+                try { localStorage.setItem('assistente-conversas', this.conversasAbertas ? 'abertas' : 'fechadas') } catch {}
+            },
+        }"
+        x-on:alternar-conversas.window="alternarConversas()"
     >
-        <x-slot:acoes>
-            @if ($conversas->isNotEmpty())
-                <flux:dropdown class="lg:hidden">
-                    <flux:button icon="chat-bubble-left-right" icon:trailing="chevron-down">Conversas</flux:button>
-
-                    <flux:menu>
-                        @foreach ($conversas->take(10) as $item)
-                            <flux:menu.item :href="route('assistente.index', ['conversa' => $item->id])" wire:navigate>
-                                {{ Str::limit($item->titulo, 40) }}
-                            </flux:menu.item>
-                        @endforeach
-                    </flux:menu>
-                </flux:dropdown>
-            @endif
-
-            @if ($conversa)
-                <x-confirmar-exclusao
-                    :acao="route('assistente.conversas.destroy', $conversa)"
-                    nome="conversa-{{ $conversa->id }}"
-                    mensagem="A conversa “{{ $conversa->titulo }}” e todas as suas mensagens serão excluídas. Os cadastros feitos pelo assistente continuam no sistema."
-                />
-            @endif
-
-            <flux:button :href="route('assistente.index')" variant="primary" icon="plus" wire:navigate>Nova conversa</flux:button>
-        </x-slot:acoes>
-    </x-cabecalho-pagina>
-
-    <div class="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <aside
-            class="hidden min-h-0 flex-col rounded-xl border border-zinc-200 bg-white lg:flex dark:border-white/10 dark:bg-zinc-900"
-            x-data
-            x-on:assistente-historico.window="$refs.lista.innerHTML = $event.detail.html"
-        >
-            <div class="border-b border-zinc-200 px-4 py-3 dark:border-white/10">
-                <flux:heading>Conversas</flux:heading>
-                <flux:text size="sm">As 50 mais recentes</flux:text>
+        <aside x-show="conversasAbertas" class="hidden w-64 shrink-0 flex-col border-e border-zinc-200 bg-zinc-50 md:flex dark:border-white/10 dark:bg-zinc-900">
+            <div class="p-2">
+                <a
+                    href="{{ route('assistente.index') }}"
+                    wire:navigate
+                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-200/50 dark:text-zinc-100 dark:hover:bg-white/5"
+                >
+                    <flux:icon.pencil-square variant="mini" class="text-zinc-500" />
+                    Nova conversa
+                </a>
             </div>
 
-            <nav x-ref="lista" class="max-h-[calc(100dvh-16rem)] space-y-0.5 overflow-y-auto p-2" aria-label="Conversas">
+            <nav x-data x-on:assistente-historico.window="$el.innerHTML = $event.detail.html" class="min-h-0 flex-1 overflow-y-auto px-2 pb-4" aria-label="Conversas">
                 @include('assistente.partials.historico', ['conversaAtual' => $conversa])
             </nav>
+
+            <div class="border-t border-zinc-200 px-4 py-3 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+                Respostas do Claude ou da OpenAI, com os seus dados. As conversas ficam só na sua conta.
+            </div>
         </aside>
 
-        <section class="flex h-[calc(100dvh-13rem)] min-h-[30rem] min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50/50 dark:border-white/10 dark:bg-zinc-900">
-            @include('assistente.partials.chat', ['compacto' => false, 'comHistorico' => true])
+        <section class="flex min-w-0 flex-1 flex-col bg-white dark:bg-zinc-800">
+            @include('assistente.partials.chat', ['variante' => 'tela'])
         </section>
+
+        {{-- Conversas no celular --}}
+        <flux:modal name="conversas-do-assistente" variant="flyout" position="left" class="w-72 p-0!">
+            <div class="flex h-dvh flex-col bg-zinc-50 dark:bg-zinc-900">
+                <div class="flex items-center gap-2 border-b border-zinc-200 py-3 ps-4 pe-12 dark:border-white/10">
+                    <flux:heading>Conversas</flux:heading>
+                </div>
+
+                <div class="p-2">
+                    <a
+                        href="{{ route('assistente.index') }}"
+                        wire:navigate
+                        class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-200/50 dark:text-zinc-100 dark:hover:bg-white/5"
+                    >
+                        <flux:icon.pencil-square variant="mini" class="text-zinc-500" />
+                        Nova conversa
+                    </a>
+                </div>
+
+                <nav x-data x-on:assistente-historico.window="$el.innerHTML = $event.detail.html" class="min-h-0 flex-1 overflow-y-auto px-2 pb-4" aria-label="Conversas">
+                    @include('assistente.partials.historico', ['conversaAtual' => $conversa])
+                </nav>
+            </div>
+        </flux:modal>
     </div>
 </x-layouts::app>

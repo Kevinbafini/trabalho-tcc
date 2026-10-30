@@ -85,12 +85,13 @@ class AssistenteController extends Controller
         }
 
         $conversa?->load('mensagens');
+        $telaCheia = $request->boolean('tela_cheia');
 
         return response()->json([
             'conversa_id' => $conversa?->id,
             'url' => route('assistente.index', array_filter(['conversa' => $conversa?->id])),
-            'mensagens' => view('assistente.partials.mensagens', ['conversa' => $conversa])->render(),
-            'historico' => $request->boolean('com_historico')
+            'mensagens' => view('assistente.partials.mensagens', ['conversa' => $conversa, 'comVazio' => ! $telaCheia])->render(),
+            'historico' => $telaCheia
                 ? view('assistente.partials.historico', [
                     'conversas' => $usuario->conversas()->latest('ultima_mensagem_em')->latest('id')->limit(50)->get(),
                     'conversaAtual' => $conversa,

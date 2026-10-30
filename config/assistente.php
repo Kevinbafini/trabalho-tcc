@@ -31,4 +31,12 @@ return [
     // Tamanho máximo de uma mensagem do usuário (caracteres).
     'tamanho_da_mensagem' => 2000,
 
+    // Sugestões exibidas no início de uma conversa (um clique envia o texto).
+    'sugestoes' => [
+        ['icone' => 'chart-pie', 'texto' => 'Faça um resumo dos meus custos nesta safra.'],
+        ['icone' => 'map', 'texto' => 'Qual talhão tem o maior custo por hectare?'],
+        ['icone' => 'clipboard-document-list', 'texto' => 'Quais foram as últimas atividades registradas?'],
+        ['icone' => 'plus-circle', 'texto' => 'Quero registrar uma atividade agrícola.'],
+    ],
+
 ];

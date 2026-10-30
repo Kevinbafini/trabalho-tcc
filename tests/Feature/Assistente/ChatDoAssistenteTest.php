@@ -9,6 +9,7 @@ use App\Models\Conversa;
 use App\Models\Mensagem;
 use App\Models\User;
 use App\Services\Ia\AssistenteClaude;
+use Illuminate\Support\Str;
 
 /*
  * Chat do Assistente IA: tela, painel lateral, envio de mensagens, limites
@@ -72,7 +73,7 @@ test('a tela do assistente abre com as sugestões e o seletor de provedor', func
 
     $this->get(route('assistente.index'))
         ->assertOk()
-        ->assertSee(['Assistente IA', 'Como posso ajudar?', 'Faça um resumo dos meus custos nesta safra.', 'Claude', 'OpenAI', '60 mensagens restantes hoje'], false)
+        ->assertSee(['Assistente IA', 'Como posso ajudar, '.Str::before($this->usuario->name, ' ').'?', 'Faça um resumo dos meus custos nesta safra.', 'Claude', 'OpenAI', '60 mensagens restantes hoje'], false)
         ->assertDontSee('Assistente ainda não configurado');
 });
 

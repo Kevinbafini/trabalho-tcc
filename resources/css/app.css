@@ -67,11 +67,11 @@ select:focus[data-flux-control] {
 
 /* Respostas do Assistente IA (Markdown convertido para HTML no servidor). */
 .conteudo-ia {
-    @apply text-sm leading-6 break-words text-zinc-700 dark:text-zinc-200;
+    @apply text-[15px] leading-7 break-words text-zinc-800 dark:text-zinc-100;
 }
 
 .conteudo-ia > * + * {
-    @apply mt-3;
+    @apply mt-4;
 }
 
 .conteudo-ia ul {
