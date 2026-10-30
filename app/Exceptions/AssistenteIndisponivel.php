@@ -16,6 +16,16 @@ class AssistenteIndisponivel extends RuntimeException
         return new self('O assistente de IA está desligado neste sistema.');
     }
 
+    public static function muitasMensagensSeguidas(int $segundos): self
+    {
+        return new self("Você enviou muitas mensagens seguidas. Aguarde {$segundos} segundos e tente de novo.");
+    }
+
+    public static function limiteDiario(int $limite): self
+    {
+        return new self("Você atingiu o limite de {$limite} mensagens por dia com o assistente. Ele volta a responder amanhã.");
+    }
+
     public static function semChave(ProvedorIa $provedor): self
     {
         return new self("O {$provedor->rotulo()} ainda não está configurado neste sistema. Escolha outro provedor ou peça ao administrador para cadastrar a chave da API.");

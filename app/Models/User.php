@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Passport\Contracts\OAuthenticatable;
+use Laravel\Passport\HasApiTokens;
 
 /**
  * @property int $id
@@ -30,10 +32,10 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements PasskeyUser
+class User extends Authenticatable implements OAuthenticatable, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
      * Ao excluir a conta, remove primeiro as atividades do usuário. Assim os
@@ -55,6 +57,16 @@ class User extends Authenticatable implements PasskeyUser
     public function propriedades(): HasMany
     {
         return $this->hasMany(Propriedade::class);
+    }
+
+    /**
+     * Conversas com o Assistente IA.
+     *
+     * @return HasMany<Conversa, $this>
+     */
+    public function conversas(): HasMany
+    {
+        return $this->hasMany(Conversa::class);
     }
 
     /**

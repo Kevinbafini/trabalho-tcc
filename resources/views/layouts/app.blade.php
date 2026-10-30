@@ -4,4 +4,6 @@
 
         {{ $slot }}
     </flux:main>
+
+    <x-assistente.gaveta />
 </x-layouts::app.sidebar>

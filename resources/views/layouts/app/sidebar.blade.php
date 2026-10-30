@@ -33,6 +33,10 @@
                     <x-menu-item rota="custos-talhoes.index" icone="banknotes">Custos por Talhão</x-menu-item>
                     <x-menu-item rota="relatorios.index" icone="document-chart-bar">Relatórios</x-menu-item>
                 </flux:sidebar.group>
+
+                <flux:sidebar.group heading="Inteligência artificial" class="grid">
+                    <x-menu-item rota="assistente.index" icone="sparkles">Assistente IA</x-menu-item>
+                </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />

@@ -40,6 +40,22 @@ class FerramentasDoAssistente
     }
 
     /**
+     * Título legível de cada ferramenta (ex.: consultar-custos → Consultar custos),
+     * exibido nas respostas para mostrar o que a IA consultou ou cadastrou.
+     *
+     * @return array<string, string>
+     */
+    public static function titulos(): array
+    {
+        static $titulos = null;
+
+        return $titulos ??= collect(SistemaAgricolaServer::FERRAMENTAS)
+            ->map(fn (string $classe): Ferramenta => app($classe))
+            ->mapWithKeys(fn (Ferramenta $ferramenta): array => [$ferramenta->name() => $ferramenta->title()])
+            ->all();
+    }
+
+    /**
      * Definições das ferramentas em formato neutro: nome, descrição e o
      * JSON Schema dos argumentos (cada provedor adapta para a sua API).
      *

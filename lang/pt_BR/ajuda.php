@@ -447,6 +447,24 @@ return [
         ],
     ],
 
+    'assistente' => [
+        'index' => [
+            'titulo' => 'Assistente IA',
+            'proposito' => 'Conversa com uma inteligência artificial que consulta os seus dados e faz cadastros a partir do que você pede, em linguagem natural. Ela usa as mesmas regras e cálculos das telas do sistema.',
+            'exibe' => [
+                '**Conversas**: o histórico das suas conversas com o assistente.',
+                '**Mensagens**: as suas perguntas e as respostas da IA, com o provedor usado, as ferramentas consultadas e os tokens gastos.',
+                '**Provedor**: a escolha entre **Claude** (Anthropic) e **OpenAI** para as próximas respostas.',
+            ],
+            'como_usar' => [
+                'Escreva o que precisa, por exemplo: "quanto gastei no Talhão 01 nesta safra?" ou "registre uma adubação de ontem no Talhão 02".',
+                'Para cadastrar, a IA mostra uma **prévia** com os dados e os custos calculados e pergunta se pode salvar. Responda "sim" para gravar.',
+                'Use **Nova conversa** para mudar de assunto. O botão **Assistente IA**, no canto das outras telas, abre o mesmo chat sem sair da tela.',
+            ],
+            'dica' => 'O assistente só consulta e cadastra: para editar ou excluir, use as telas do sistema. Há um limite diário de mensagens por usuário.',
+        ],
+    ],
+
     'profile' => [
         'edit' => [
             'titulo' => 'Perfil',

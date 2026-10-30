@@ -64,3 +64,54 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* Respostas do Assistente IA (Markdown convertido para HTML no servidor). */
+.conteudo-ia {
+    @apply text-sm leading-6 break-words text-zinc-700 dark:text-zinc-200;
+}
+
+.conteudo-ia > * + * {
+    @apply mt-3;
+}
+
+.conteudo-ia ul {
+    @apply list-disc space-y-1 ps-5;
+}
+
+.conteudo-ia ol {
+    @apply list-decimal space-y-1 ps-5;
+}
+
+.conteudo-ia li > ul,
+.conteudo-ia li > ol {
+    @apply mt-1;
+}
+
+.conteudo-ia strong,
+.conteudo-ia h1,
+.conteudo-ia h2,
+.conteudo-ia h3,
+.conteudo-ia h4 {
+    @apply font-semibold text-zinc-900 dark:text-white;
+}
+
+.conteudo-ia a {
+    @apply font-medium text-zinc-900 underline underline-offset-2 hover:text-zinc-600 dark:text-white dark:hover:text-zinc-300;
+}
+
+.conteudo-ia code {
+    @apply rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] dark:bg-white/10;
+}
+
+.conteudo-ia hr {
+    @apply border-zinc-200 dark:border-white/10;
+}
+
+.conteudo-ia table {
+    @apply block w-full overflow-x-auto text-left text-xs;
+}
+
+.conteudo-ia th,
+.conteudo-ia td {
+    @apply border-b border-zinc-200 px-2 py-1.5 whitespace-nowrap dark:border-white/10;
+}
