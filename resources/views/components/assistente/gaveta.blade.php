@@ -7,7 +7,7 @@
     <flux:modal.trigger name="assistente-ia">
         <button
             type="button"
-            class="fixed end-5 bottom-5 z-40 inline-flex cursor-pointer items-center gap-2 rounded-full bg-zinc-900 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-zinc-900/20 transition hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:bg-white dark:text-zinc-900 dark:shadow-black/40 dark:hover:bg-zinc-200"
+            class="fixed end-5 bottom-5 z-40 inline-flex cursor-pointer items-center gap-2 rounded-full bg-accent px-4 py-3 text-sm font-medium text-accent-foreground shadow-lg shadow-primary/25 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:shadow-black/40"
             aria-label="Abrir o Assistente IA"
         >
             <flux:icon.sparkles variant="mini" />

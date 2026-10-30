@@ -43,7 +43,7 @@ class RelatorioPdfController extends Controller
         $pdf = Pdf::loadView('relatorios.pdf', [
             'usuario' => $usuario,
             'geradoEm' => now(),
-            'logo' => 'data:image/png;base64,'.base64_encode(File::get(public_path('apple-touch-icon.png'))),
+            'logo' => 'data:image/png;base64,'.base64_encode(File::get(public_path('images/logo-scaa.png'))),
             'filtrosDescritos' => $this->descreverFiltros($usuario, $filtros),
             'resumo' => $resumo,
             'fatias' => $graficos->fatiasParaPdf($resumo),

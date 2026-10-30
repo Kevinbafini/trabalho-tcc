@@ -20,19 +20,19 @@
         /* Cabeçalho e rodapé repetidos em todas as páginas */
         .topo { position: fixed; top: -20mm; left: 0; right: 0; height: 13mm; border-bottom: 0.75pt solid #e4e4e7; }
         .topo td { vertical-align: middle; }
-        .topo .logo { width: 22pt; height: 22pt; }
+        .topo .logo { width: 93pt; height: 28pt; }
         .topo .sistema { font-size: 9.5pt; font-weight: bold; color: #18181b; padding-left: 7pt; }
         .topo .sistema span { display: block; font-size: 7pt; font-weight: normal; color: #71717a; }
         .topo .documento { text-align: right; font-size: 7.5pt; color: #71717a; }
         .rodape { position: fixed; bottom: -13mm; left: 0; right: 0; height: 8mm; border-top: 0.75pt solid #e4e4e7; padding-top: 5pt; font-size: 7pt; color: #a1a1aa; }
 
         /* Capa */
-        .capa { background: #18181b; border-radius: 8pt; padding: 16pt 18pt; color: #ffffff; }
+        .capa { background: #0a4e35; border-radius: 8pt; padding: 16pt 18pt; color: #ffffff; }
         .capa td { vertical-align: bottom; }
-        .capa .sobretitulo { font-size: 7pt; font-weight: bold; letter-spacing: 1.6pt; text-transform: uppercase; color: #86efac; }
+        .capa .sobretitulo { font-size: 7pt; font-weight: bold; letter-spacing: 1.6pt; text-transform: uppercase; color: #b9dca0; }
         .capa .titulo { margin-top: 5pt; font-size: 20pt; font-weight: bold; color: #ffffff; }
-        .capa .subtitulo { margin-top: 3pt; font-size: 8.5pt; color: #a1a1aa; }
-        .capa .total-rotulo { text-align: right; font-size: 7.5pt; color: #a1a1aa; }
+        .capa .subtitulo { margin-top: 3pt; font-size: 8.5pt; color: #d4e5cb; }
+        .capa .total-rotulo { text-align: right; font-size: 7.5pt; color: #d4e5cb; }
         .capa .total-valor { text-align: right; font-size: 19pt; font-weight: bold; color: #ffffff; }
 
         /* Cartões (filtros e indicadores): cada célula contém um bloco arredondado */
@@ -95,9 +95,8 @@
     <div class="topo">
         <table>
             <tr>
-                <td style="width: 26pt;"><img class="logo" src="{{ $logo }}" alt=""></td>
+                <td style="width: 100pt;"><img class="logo" src="{{ $logo }}" alt="SCAA — Sistema de Controle de Atividades Agrícolas"></td>
                 <td class="sistema">
-                    Sistema de Controle de Atividades Agrícolas
                     <span>Apropriação de custos por propriedade e talhão</span>
                 </td>
                 <td class="documento">

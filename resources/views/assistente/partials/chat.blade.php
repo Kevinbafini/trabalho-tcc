@@ -190,7 +190,7 @@
 
                         <button
                             type="submit"
-                            class="ms-auto flex size-9 cursor-pointer items-center justify-center rounded-full bg-zinc-900 text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-400 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 dark:disabled:bg-white/10 dark:disabled:text-zinc-500"
+                            class="ms-auto flex size-9 cursor-pointer items-center justify-center rounded-full bg-accent text-accent-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-400 dark:disabled:bg-white/10 dark:disabled:text-zinc-500"
                             x-bind:disabled="enviando || mensagem.trim() === ''"
                             aria-label="Enviar mensagem"
                             disabled

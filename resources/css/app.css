@@ -23,16 +23,26 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
+    /* Cores da marca (logo do SCAA). */
+    --color-primary: #0A4E35;
+    --color-primary-dark: #0A332A;
+    --color-secondary: #2A7136;
+    --color-success: #528F39;
+    --color-accent-green: #679632;
+
+    /* Cor de destaque do Flux (botões principais, item ativo do menu, campos em foco). */
+    --color-accent: var(--color-primary);
+    --color-accent-content: var(--color-primary);
     --color-accent-foreground: var(--color-white);
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        /* No escuro: botões em verde médio com texto branco (contraste 6:1) e
+           textos/links em um tom claro do verde (contraste 6,7:1 sobre o fundo). */
+        --color-accent: var(--color-secondary);
+        --color-accent-content: #95b670;
+        --color-accent-foreground: var(--color-white);
     }
 }
 
