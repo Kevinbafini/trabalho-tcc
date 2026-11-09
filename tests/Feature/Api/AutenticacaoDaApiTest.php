@@ -196,3 +196,21 @@ test('endereço que não existe na API responde 404 em JSON', function () {
         ->assertNotFound()
         ->assertExactJson(['message' => 'Endereço não encontrado na API.']);
 });
+
+test('método HTTP que o endereço não aceita responde 405 em JSON', function () {
+    $this->deleteJson('/api/v1/talhoes')
+        ->assertMethodNotAllowed()
+        ->assertExactJson(['message' => 'Método HTTP não permitido neste endereço.']);
+});
+
+test('o login bloqueia novas tentativas após 5 erros no mesmo minuto', function () {
+    User::factory()->create(['email' => 'ana@exemplo.com']);
+
+    foreach (range(1, 5) as $tentativa) {
+        $this->postJson(route('api.v1.login'), ['email' => 'ana@exemplo.com', 'password' => 'senha-errada'])->assertUnprocessable();
+    }
+
+    $this->postJson(route('api.v1.login'), ['email' => 'ana@exemplo.com', 'password' => 'password'])
+        ->assertTooManyRequests()
+        ->assertJsonPath('message', 'Muitas requisições. Aguarde um momento e tente novamente.');
+});
