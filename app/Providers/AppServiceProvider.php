@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Enums\EscopoDaApi;
 use App\Http\Controllers\DevLoginController;
 use App\Mcp\Servers\SistemaAgricolaServer;
 use App\Mcp\Tools\Ferramenta;
 use App\Models\User;
+use App\Services\EscoposDosTokens;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Passport\Bridge\ScopeRepository;
 use Laravel\Passport\Passport;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
         // pelos apps de IA; desligado, o Passport não registra as rotas dele.
         // Precisa ser aqui: o Passport registra as rotas antes do boot deste provider.
         Passport::$deviceCodeGrantEnabled = false;
+
+        // Os escopos da API REST só entram nos tokens pessoais (login da API),
+        // nunca nos tokens dos apps de IA conectados pelo MCP.
+        $this->app->bind(ScopeRepository::class, EscoposDosTokens::class);
     }
 
     /**
@@ -42,6 +49,33 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->configureDevLogin();
         $this->configureMcp();
+        $this->configureApi();
+    }
+
+    /**
+     * API REST (/api/v1, routes/api.php), usada por aplicações externas com
+     * tokens pessoais do Passport criados em POST /api/v1/login.
+     *
+     * Os escopos do token dizem o que ele pode fazer (ver EscopoDaApi). O
+     * escopo mcp:use do servidor MCP é acrescentado pelo pacote laravel/mcp
+     * depois do boot, por isso os escopos já definidos são mantidos aqui.
+     *
+     * O token da API vale 7 dias (o padrão do Passport é 1 ano); depois disso,
+     * basta fazer login de novo. O limite de requisições é por usuário.
+     */
+    protected function configureApi(): void
+    {
+        $escoposDaApi = [];
+
+        foreach (EscopoDaApi::cases() as $escopo) {
+            $escoposDaApi[$escopo->value] = $escopo->descricao();
+        }
+
+        Passport::tokensCan([...Passport::$scopes, ...$escoposDaApi]);
+        Passport::personalAccessTokensExpireIn(CarbonInterval::days(7));
+
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by('api:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
     }
 
     /**
