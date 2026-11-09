@@ -129,6 +129,14 @@ test('um token só de leitura consulta, mas recebe 403 ao tentar cadastrar', fun
     $this->assertDatabaseCount('atividades_agricolas', 0);
 });
 
+test('sem o escopo de escrita responde 403 antes de procurar o registro', function () {
+    Passport::actingAs(User::factory()->create(), ['api:leitura']);
+
+    $this->deleteJson('/api/v1/atividades/999999')
+        ->assertForbidden()
+        ->assertExactJson(['message' => 'Este token não tem permissão para esta operação. Escopo necessário: api:escrita.']);
+});
+
 test('o logout revoga o token, que deixa de funcionar', function () {
     User::factory()->create(['email' => 'ana@exemplo.com']);
     Client::factory()->asPersonalAccessTokenClient()->create();
