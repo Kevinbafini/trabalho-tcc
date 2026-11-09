@@ -1,0 +1,1132 @@
+{
+  "info": {
+    "name": "API REST — Sistema de Controle de Atividades Agrícolas",
+    "description": "API REST v1 do TCC (Laravel + MySQL). Documentação completa em API_DOCUMENTATION.md.\n\nComo usar: confira as variáveis da collection (base_url, email, senha), rode '1. Autenticação → Login' e siga as pastas em ordem. O token e os IDs são guardados automaticamente. Com o Collection Runner, tudo roda de uma vez.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Autenticação",
+      "description": "Geração do token de acesso. Comece por aqui: o Login guarda o token na variável {{token}}, usada pelas demais requisições.",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const dados = pm.response.json().data;",
+                  "pm.collectionVariables.set('token', dados.token);",
+                  "pm.test('Token do tipo Bearer', () => pm.expect(dados.tipo).to.eql('Bearer'));",
+                  "pm.test('Escopos de leitura e escrita', () => pm.expect(dados.escopos).to.eql(['api:leitura', 'api:escrita']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Troca e-mail e senha por um token Bearer com os escopos api:leitura e api:escrita. Válido por 7 dias.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{senha}}\",\n  \"nome_dispositivo\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login só leitura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token_leitura', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Cria um segundo token apenas com o escopo api:leitura, usado no exemplo de 403 da pasta 6.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{senha}}\",\n  \"nome_dispositivo\": \"Postman (só leitura)\",\n  \"escopos\": [\"api:leitura\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Usuário do token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuario",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuario"
+              ]
+            },
+            "description": "Mostra o usuário dono do token (confere se o token está funcionando)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Propriedades e talhões",
+      "description": "Consultas. As listagens guardam o primeiro ID encontrado, usado no cadastro de atividade.",
+      "item": [
+        {
+          "name": "Listar propriedades",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const itens = pm.response.json().data;",
+                  "pm.test('Encontrou ao menos um registro', () => pm.expect(itens.length).to.be.above(0));",
+                  "if (itens.length) { pm.collectionVariables.set('propriedade_id', itens[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/propriedades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "propriedades"
+              ]
+            },
+            "description": "Propriedades do usuário, paginadas. Aceita busca e por_pagina."
+          }
+        },
+        {
+          "name": "Consultar propriedade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/propriedades/{{propriedade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "propriedades",
+                "{{propriedade_id}}"
+              ]
+            },
+            "description": "Propriedade (em data) e resumo dos custos das atividades (em custos)."
+          }
+        },
+        {
+          "name": "Listar talhões da propriedade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const itens = pm.response.json().data;",
+                  "pm.test('Encontrou ao menos um registro', () => pm.expect(itens.length).to.be.above(0));",
+                  "if (itens.length) { pm.collectionVariables.set('talhao_id', itens[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/talhoes?propriedade_id={{propriedade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "talhoes"
+              ],
+              "query": [
+                {
+                  "key": "propriedade_id",
+                  "value": "{{propriedade_id}}"
+                }
+              ]
+            },
+            "description": "Talhões filtrados pela propriedade escolhida."
+          }
+        },
+        {
+          "name": "Consultar talhão",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/talhoes/{{talhao_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "talhoes",
+                "{{talhao_id}}"
+              ]
+            },
+            "description": "Talhão (em data) e custos acumulados, com o custo por hectare (em custos)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Recursos",
+      "description": "Insumos, máquinas, funcionários e implementos da propriedade: de onde saem os IDs do cadastro de atividade.",
+      "item": [
+        {
+          "name": "Listar insumos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const itens = pm.response.json().data;",
+                  "pm.test('Encontrou ao menos um registro', () => pm.expect(itens.length).to.be.above(0));",
+                  "if (itens.length) { pm.collectionVariables.set('insumo_id', itens[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/insumos?propriedade_id={{propriedade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "insumos"
+              ],
+              "query": [
+                {
+                  "key": "propriedade_id",
+                  "value": "{{propriedade_id}}"
+                }
+              ]
+            },
+            "description": "Insumos com unidade e valor unitário."
+          }
+        },
+        {
+          "name": "Listar máquinas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const itens = pm.response.json().data;",
+                  "pm.test('Encontrou ao menos um registro', () => pm.expect(itens.length).to.be.above(0));",
+                  "if (itens.length) { pm.collectionVariables.set('maquina_id', itens[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/maquinas?propriedade_id={{propriedade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "maquinas"
+              ],
+              "query": [
+                {
+                  "key": "propriedade_id",
+                  "value": "{{propriedade_id}}"
+                }
+              ]
+            },
+            "description": "Máquinas com custo por hora."
+          }
+        },
+        {
+          "name": "Listar funcionários",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const itens = pm.response.json().data;",
+                  "pm.test('Encontrou ao menos um registro', () => pm.expect(itens.length).to.be.above(0));",
+                  "if (itens.length) { pm.collectionVariables.set('funcionario_id', itens[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/funcionarios?propriedade_id={{propriedade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "funcionarios"
+              ],
+              "query": [
+                {
+                  "key": "propriedade_id",
+                  "value": "{{propriedade_id}}"
+                }
+              ]
+            },
+            "description": "Funcionários com custo por hora."
+          }
+        },
+        {
+          "name": "Listar implementos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const itens = pm.response.json().data;",
+                  "pm.test('Encontrou ao menos um registro', () => pm.expect(itens.length).to.be.above(0));",
+                  "if (itens.length) { pm.collectionVariables.set('implemento_id', itens[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/implementos?propriedade_id={{propriedade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "implementos"
+              ],
+              "query": [
+                {
+                  "key": "propriedade_id",
+                  "value": "{{propriedade_id}}"
+                }
+              ]
+            },
+            "description": "Implementos (sem custo próprio)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Atividades (CRUD)",
+      "description": "Cadastro, consulta, alteração e exclusão de atividades agrícolas. Os custos são sempre calculados pelo sistema.",
+      "item": [
+        {
+          "name": "Cadastrar atividade",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Data de hoje no fuso do computador (a API não aceita data futura).",
+                  "const d = new Date();",
+                  "const hoje = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');",
+                  "pm.collectionVariables.set('hoje', hoje);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const atividade = pm.response.json().data;",
+                  "pm.collectionVariables.set('atividade_id', atividade.id);",
+                  "pm.test('Cabeçalho Location', () => pm.response.to.have.header('Location'));",
+                  "pm.test('Custo total calculado', () => pm.expect(atividade.custo_total).to.be.above(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades"
+              ]
+            },
+            "description": "Registra a atividade com os IDs guardados nas pastas anteriores. Responde 201, com o cabeçalho Location e os custos calculados.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propriedade_id\": {{propriedade_id}},\n  \"talhao_id\": {{talhao_id}},\n  \"data\": \"{{hoje}}\",\n  \"tipo\": \"adubacao\",\n  \"descricao\": \"Adubação de cobertura (cadastrada pela API)\",\n  \"insumos\": [{ \"insumo_id\": {{insumo_id}}, \"quantidade\": 250 }],\n  \"maquinas\": [{ \"maquina_id\": {{maquina_id}}, \"horas\": 2.5 }],\n  \"funcionarios\": [{ \"funcionario_id\": {{funcionario_id}}, \"horas\": 3 }],\n  \"implementos\": [{{implemento_id}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar atividades",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades?talhao_id={{talhao_id}}&por_pagina=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades"
+              ],
+              "query": [
+                {
+                  "key": "talhao_id",
+                  "value": "{{talhao_id}}"
+                },
+                {
+                  "key": "por_pagina",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Atividades do usuário, das mais recentes para as mais antigas. Filtros: propriedade_id, talhao_id, tipo, busca, por_pagina."
+          }
+        },
+        {
+          "name": "Consultar atividade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades/{{atividade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades",
+                "{{atividade_id}}"
+              ]
+            },
+            "description": "Atividade com os itens e os valores gravados no lançamento (snapshot)."
+          }
+        },
+        {
+          "name": "Atualizar atividade",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Data de hoje no fuso do computador (a API não aceita data futura).",
+                  "const d = new Date();",
+                  "const hoje = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');",
+                  "pm.collectionVariables.set('hoje', hoje);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Descrição alterada', () => pm.expect(pm.response.json().data.descricao).to.eql('Adubação corrigida (alterada pela API)'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades/{{atividade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades",
+                "{{atividade_id}}"
+              ]
+            },
+            "description": "Envio completo, como no formulário de edição. Aqui as horas da máquina passam de 2,5 para 4, e o custo é recalculado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"talhao_id\": {{talhao_id}},\n  \"data\": \"{{hoje}}\",\n  \"tipo\": \"adubacao\",\n  \"descricao\": \"Adubação corrigida (alterada pela API)\",\n  \"insumos\": [{ \"insumo_id\": {{insumo_id}}, \"quantidade\": 250 }],\n  \"maquinas\": [{ \"maquina_id\": {{maquina_id}}, \"horas\": 4 }],\n  \"funcionarios\": [{ \"funcionario_id\": {{funcionario_id}}, \"horas\": 3 }],\n  \"implementos\": [{{implemento_id}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Relatórios",
+      "description": "Os mesmos números das telas Custos por talhão e Relatórios.",
+      "item": [
+        {
+          "name": "Relatório de custos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/relatorios/custos?propriedade_id={{propriedade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "relatorios",
+                "custos"
+              ],
+              "query": [
+                {
+                  "key": "propriedade_id",
+                  "value": "{{propriedade_id}}"
+                }
+              ]
+            },
+            "description": "Resumo, custos por talhão, por operação, por mês e por cultura. Filtros opcionais: propriedade_id, talhao_id, safra, data_inicio, data_fim."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Erros (401, 403, 404, 422)",
+      "description": "Respostas de erro da API, sempre em JSON e em português.",
+      "item": [
+        {
+          "name": "Sem token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades"
+              ]
+            },
+            "description": "Requisição sem o cabeçalho Authorization.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Token só leitura cadastrando (403)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Data de hoje no fuso do computador (a API não aceita data futura).",
+                  "const d = new Date();",
+                  "const hoje = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');",
+                  "pm.collectionVariables.set('hoje', hoje);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades"
+              ]
+            },
+            "description": "O token tem api:leitura, mas cadastrar exige api:escrita.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propriedade_id\": {{propriedade_id}},\n  \"talhao_id\": {{talhao_id}},\n  \"data\": \"{{hoje}}\",\n  \"tipo\": \"adubacao\",\n  \"descricao\": \"Adubação de cobertura (cadastrada pela API)\",\n  \"insumos\": [{ \"insumo_id\": {{insumo_id}}, \"quantidade\": 250 }],\n  \"maquinas\": [{ \"maquina_id\": {{maquina_id}}, \"horas\": 2.5 }],\n  \"funcionarios\": [{ \"funcionario_id\": {{funcionario_id}}, \"horas\": 3 }],\n  \"implementos\": [{{implemento_id}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_leitura}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atividade inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades",
+                "999999"
+              ]
+            },
+            "description": "Registro que não existe (ou de outro usuário)."
+          }
+        },
+        {
+          "name": "Dados inválidos (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Erros por campo', () => pm.expect(pm.response.json().errors).to.have.property('talhao_id'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades"
+              ]
+            },
+            "description": "Corpo vazio: a resposta lista o erro de cada campo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Encerrar",
+      "description": "Exclui a atividade de teste e revoga os tokens.",
+      "item": [
+        {
+          "name": "Excluir atividade (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/atividades/{{atividade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "atividades",
+                "{{atividade_id}}"
+              ]
+            },
+            "description": "Exclui a atividade cadastrada na pasta 4. Responde 204, sem corpo."
+          }
+        },
+        {
+          "name": "Logout do token só leitura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            },
+            "description": "Revoga o token só leitura.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_leitura}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            },
+            "description": "Revoga o token principal. Responde 204."
+          }
+        },
+        {
+          "name": "Usar o token depois do logout (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuario",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuario"
+              ]
+            },
+            "description": "O token revogado não funciona mais."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://projeto-tcc.test/api/v1"
+    },
+    {
+      "key": "email",
+      "value": "admin@admin.com"
+    },
+    {
+      "key": "senha",
+      "value": "password"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "token_leitura",
+      "value": ""
+    },
+    {
+      "key": "propriedade_id",
+      "value": ""
+    },
+    {
+      "key": "talhao_id",
+      "value": ""
+    },
+    {
+      "key": "insumo_id",
+      "value": ""
+    },
+    {
+      "key": "maquina_id",
+      "value": ""
+    },
+    {
+      "key": "funcionario_id",
+      "value": ""
+    },
+    {
+      "key": "implemento_id",
+      "value": ""
+    },
+    {
+      "key": "atividade_id",
+      "value": ""
+    },
+    {
+      "key": "hoje",
+      "value": ""
+    }
+  ]
+}
